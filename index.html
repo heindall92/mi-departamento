@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mi Departamento · Yoandy Ramírez</title>
+  <meta name="description" content="Mis agentes de IA, trabajando: una oficina pixel-art del turno de noche.">
+  <meta name="theme-color" content="#14111d">
+  <meta property="og:title" content="Mi Departamento">
+  <meta property="og:description" content="Mis agentes de IA, trabajando.">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&family=Silkscreen&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <a class="skip" href="#actividad" data-i18n="skip">Saltar a la actividad</a>
+
+  <header class="topbar">
+    <div class="brand">
+      <canvas class="brand-logo" width="16" height="16" aria-hidden="true"></canvas>
+      <span class="brand-name" data-i18n="title">Mi Departamento</span>
+    </div>
+    <div class="topbar-right">
+      <button class="you" id="you" type="button" data-i18n-aria="youAria" aria-label="Tú (Yoandy Ramírez)">
+        <canvas class="you-avatar" width="12" height="12" aria-hidden="true"></canvas>
+        <span class="you-name" data-i18n="you">Tú</span>
+      </button>
+      <div class="seg" role="group" data-i18n-aria="langGroup" aria-label="Idioma">
+        <button type="button" class="seg-btn" data-lang="es" aria-pressed="true" aria-label="Español">ES</button>
+        <button type="button" class="seg-btn" data-lang="en" aria-pressed="false" aria-label="English">EN</button>
+      </div>
+    </div>
+  </header>
+
+  <section class="hero">
+    <h1 class="hero-title" data-i18n="title">Mi Departamento</h1>
+    <p class="hero-sub" data-i18n="subtitle">Mis agentes de IA, trabajando</p>
+    <p class="hero-meta">
+      <span data-i18n="owner">Responsable: Yoandy Ramírez</span>
+      <span class="dot" aria-hidden="true"></span>
+      <span><span data-i18n="shift">Turno de noche · Huelva</span> <time id="clock"></time></span>
+      <span class="dot" aria-hidden="true"></span>
+      <span id="headcount"></span>
+    </p>
+  </section>
+
+  <main class="layout">
+    <section class="office" aria-labelledby="office-h">
+      <h2 id="office-h" class="sr-only" data-i18n="officeH">La oficina</h2>
+      <div class="floor" id="floor"></div>
+      <p class="hint" data-i18n="hint">Pulsa en un agente para ver su ficha.</p>
+    </section>
+
+    <aside class="activity" id="actividad" aria-labelledby="act-h">
+      <div class="activity-head">
+        <h2 id="act-h"><span class="live" aria-hidden="true"></span><span data-i18n="activity">Actividad</span></h2>
+        <button class="pill" id="playpause" type="button" aria-pressed="false">
+          <span class="pill-ico" aria-hidden="true"></span><span class="pill-txt" data-i18n="pause">Pausar</span>
+        </button>
+      </div>
+      <p class="activity-note" data-i18n="demo">Demo: la actividad es simulada</p>
+      <ol class="log" id="log" role="log" aria-live="polite" aria-relevant="additions"></ol>
+    </aside>
+
+    <section class="team" aria-labelledby="team-h">
+      <h2 id="team-h" data-i18n="team">El equipo</h2>
+      <p class="team-hint" data-i18n="teamHint">Todos los agentes y su función, en texto.</p>
+      <div class="team-grid" id="team"></div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p class="demo-note"><span class="badge" data-i18n="demoBadge">DEMO</span> <span data-i18n="demo">Demo: la actividad es simulada</span></p>
+    <p class="footer-meta"><span data-i18n="made">Una oficina de Yoandy Ramírez, dibujada píxel a píxel.</span>
+      <a href="https://github.com/heindall92/mi-departamento" data-i18n="repo">Código en GitHub</a></p>
+  </footer>
+
+  <a class="ticker" href="#actividad" id="ticker" aria-hidden="true" tabindex="-1">
+    <span class="ticker-who" id="ticker-who"></span>
+    <span class="ticker-text" id="ticker-text"></span>
+  </a>
+
+  <div class="fx" id="fx" aria-hidden="true"></div>
+
+  <dialog class="card" id="card" aria-labelledby="card-name">
+    <div class="card-inner">
+      <button class="card-close" type="button" id="card-close" data-i18n-aria="close" aria-label="Cerrar"><span aria-hidden="true">×</span></button>
+      <div class="card-top">
+        <canvas class="card-sprite" id="card-sprite" width="16" height="18" aria-hidden="true"></canvas>
+        <div>
+          <p class="card-room" id="card-room"></p>
+          <h3 class="card-name" id="card-name"></h3>
+          <p class="card-role" id="card-role"></p>
+        </div>
+      </div>
+      <p class="card-status"><span data-i18n="status">Estado</span>: <span class="chip" id="card-status"></span></p>
+      <h4 data-i18n="whatDoes">Qué hace</h4>
+      <ul class="card-does" id="card-does"></ul>
+      <div class="card-last" id="card-last" hidden>
+        <h4 data-i18n="lastMsg">Último mensaje</h4>
+        <p id="card-last-text"></p>
+      </div>
+    </div>
+  </dialog>
+
+  <noscript><p class="noscript">Esta oficina necesita JavaScript para dibujarse. / This office needs JavaScript to render.</p></noscript>
+  <script src="js/app.js" defer></script>
+</body>
+</html>
