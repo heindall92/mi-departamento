@@ -56,14 +56,13 @@ button:active { transform: scale(0.97); }
 
 /* ---------- Top bar (single row, never wraps) ---------- */
 .topbar {
-  position: sticky; top: 0; z-index: 40;
+  position: sticky; top: 0; z-index: 80;
   height: var(--topbar-h);
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
   flex-wrap: nowrap;
   padding: 0 clamp(12px, 3vw, 28px);
-  background: rgba(20, 17, 29, 0.94);
+  background: var(--bg);
   border-bottom: 2px solid var(--line);
-  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
 }
 .brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
 .brand-logo { width: 28px; height: 28px; flex: none; }
@@ -156,15 +155,16 @@ button:active { transform: scale(0.97); }
   display: flex; align-items: center; justify-content: space-between; gap: 8px;
   padding: 7px 10px; border-bottom: 2px solid var(--line);
   background: linear-gradient(#211c30, #1b1726);
+  min-height: 44px; /* keeps 1- and 2-line titles aligned across the grid */
 }
 .room-name {
   margin: 0; font-family: var(--pixel-font); font-size: 12px; font-weight: 400; letter-spacing: .04em;
-  text-transform: uppercase; color: var(--ink); min-width: 0;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  text-transform: uppercase; color: var(--ink); min-width: 0; flex: 1 1 auto;
+  white-space: normal; line-height: 1.25; overflow-wrap: break-word;
 }
 .room-name::before { content: ""; display: inline-block; width: 8px; height: 8px; margin-right: 8px; background: var(--room-accent, var(--teal)); vertical-align: 1px; }
-.room-count { font-family: var(--pixel-font); font-size: 10px; color: var(--ink-3); white-space: nowrap; }
-.room-stage { position: relative; }
+.room-count { font-family: var(--pixel-font); font-size: 10px; color: var(--ink-3); white-space: nowrap; flex: none; }
+.room-stage { position: relative; overflow: hidden; }
 .room-canvas { width: 100%; height: auto; }
 
 .agent-hit {
@@ -214,12 +214,12 @@ button:active { transform: scale(0.97); }
   width: 8px; height: 6px; margin-left: -4px; background: #1b1726;
   clip-path: polygon(0 0, 100% 0, 50% 100%);
 }
-.bubble--you { position: fixed; z-index: 60; }
+.bubble--you { position: fixed; z-index: 50; }
 
 .hint { margin: 10px 2px 0; font-size: 13px; color: var(--ink-3); }
 
 /* ---------- FX layer (envelopes) ---------- */
-.fx { position: fixed; inset: 0; pointer-events: none; z-index: 55; overflow: hidden; }
+.fx { position: fixed; inset: 0; pointer-events: none; z-index: 50; overflow: hidden; }
 .envelope { position: absolute; left: 0; top: 0; width: 33px; height: 24px; will-change: transform, opacity; filter: drop-shadow(2px 2px 0 rgba(0,0,0,.5)); }
 
 /* ---------- Activity ---------- */
