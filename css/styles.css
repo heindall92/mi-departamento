@@ -265,7 +265,7 @@ button:active { transform: scale(0.97); transition: transform 100ms ease-out; }
 }
 .activity.paused .live { animation: none; background: var(--ink-faint); box-shadow: none; }
 @keyframes blink { 50% { opacity: 0.35; } }
-.activity-note { margin: 0.35rem 0 0.65rem; font-size: 0.72rem; font-weight: 650; letter-spacing: 0.05em; text-transform: uppercase; color: var(--amber); }
+.activity-note { margin: 0.35rem 0 0.65rem; font-size: 0.72rem; font-weight: 650; letter-spacing: 0.04em; text-transform: uppercase; color: var(--leaf-deep); }
 
 .pill {
   display: inline-flex; align-items: center; gap: 0.4rem; height: 2rem; padding: 0 0.75rem;
@@ -327,7 +327,7 @@ button:active { transform: scale(0.97); transition: transform 100ms ease-out; }
 .demo-note { margin: 0 0 0.35rem; font-size: 0.92rem; color: var(--ink); display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap; }
 .badge {
   font-size: 0.65rem; font-weight: 700; letter-spacing: 0.06em;
-  background: #f4e0b0; color: #5c3b08; padding: 0.15rem 0.4rem; border-radius: 999px;
+  background: var(--leaf); color: #fff; padding: 0.15rem 0.4rem; border-radius: 999px;
 }
 .footer-meta { margin: 0; font-size: 0.85rem; color: var(--ink-faint); display: flex; gap: 0.75rem; flex-wrap: wrap; }
 

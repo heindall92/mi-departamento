@@ -6,7 +6,7 @@
 
 El alojamiento de destino es **Cloudflare Workers** (activos estáticos). Tras el primer `wrangler deploy` la oficina queda en `https://mi-departamento.<subdominio>.workers.dev`. El dominio propio se engancha en el panel de Cloudflare, en el Worker `mi-departamento`.
 
-> **Demo:** la actividad es simulada. Los mensajes salen de un guion (`data/feed.json`), no de los agentes reales.
+> El panel de actividad es el registro real del bot de Grok en este repositorio. El resto de mesas figura con los tokens agotados. No se inventan conversaciones.
 
 ## Qué hay en la página
 

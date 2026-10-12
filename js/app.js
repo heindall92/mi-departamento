@@ -16,8 +16,8 @@
       activity: 'Actividad',
       pause: 'Pausar', play: 'Reanudar',
       pauseAria: 'Pausar la actividad', playAria: 'Reanudar la actividad',
-      demo: 'Demo: la actividad es simulada',
-      demoBadge: 'DEMO',
+      demo: 'Registro real del bot de Grok en este repositorio',
+      demoBadge: 'REAL',
       team: 'El equipo',
       teamHint: 'Todos los agentes y su función, en texto.',
       made: 'Una oficina de Yoandy Ramírez, dibujada píxel a píxel.',
@@ -53,8 +53,8 @@
       activity: 'Activity',
       pause: 'Pause', play: 'Resume',
       pauseAria: 'Pause the activity', playAria: 'Resume the activity',
-      demo: 'Demo: activity is simulated',
-      demoBadge: 'DEMO',
+      demo: 'Real log of the Grok bot on this repository',
+      demoBadge: 'REAL',
       team: 'The team',
       teamHint: 'Every agent and what they do, as text.',
       made: 'An office by Yoandy Ramírez, drawn pixel by pixel.',
@@ -827,6 +827,11 @@
         if (!state.agents.has(m.from) && m.from !== 'tu') continue;
         playMsg(m);
         await sleepPlaying(m.delayMs || def);
+      }
+      if (state.feed.loop === false) {
+        state.playing = false;
+        renderPlayPause();
+        return;
       }
       await sleepPlaying(state.feed.loopPauseMs || 6000);
       pushLog({ sep: true });
