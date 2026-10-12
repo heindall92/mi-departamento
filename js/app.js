@@ -96,7 +96,7 @@
   const fmt = (s, x) => s.replace('{x}', x);
 
   /* ---------------------------------------------------------------- state */
-  const SLOT = 56, H = 76, DESK_Y = 58, CHAR_Y = 43;
+  const SLOT = 56, H = 76, DESK_Y = 58, CHAR_Y = 40;
   const state = {
     office: null, feed: null,
     agents: new Map(), rooms: [],
@@ -108,8 +108,8 @@
     marketing: '#c2477a', ciber: '#4a7ab8', laboratorio: '#3ddc84', herramientas: '#c96a22', cafe: '#a07850'
   };
   const ROOM_WALL = {
-    direccion: '#2d2944', estrategia: '#292c42', finanzas: '#2b2a3b', ventas: '#30293b',
-    marketing: '#33283f', ciber: '#232b3d', laboratorio: '#1c2130', herramientas: '#2c2a33', cafe: '#322a32'
+    direccion: '#e7eef3', estrategia: '#e7efe4', finanzas: '#e8f1ea', ventas: '#f4ece4',
+    marketing: '#f7e8ef', ciber: '#e5ebf4', laboratorio: '#e6eee8', herramientas: '#f0e8de', cafe: '#f4f0e6'
   };
 
   /* -------------------------------------------------------------- helpers */
@@ -130,77 +130,88 @@
 
   /* ------------------------------------------------------------ sprites */
   function drawPerson(c, Lk, ox, oy, blink) {
-    const skin = Lk.skin || '#e0b088', hair = Lk.hairColor || '#2b2b2b', shirt = Lk.shirt || '#0F766E';
-    const skinD = shade(skin, -0.2), shirtD = shade(shirt, -0.25), hairL = shade(hair, 0.22);
-    const ink = '#1b1420';
+    const skin = Lk.skin || '#e8b98f', hair = Lk.hairColor || '#2b2b2b', shirt = Lk.shirt || '#2a7d48';
+    const skinD = shade(skin, -0.22), shirtD = shade(shirt, -0.28), hairL = shade(hair, 0.28);
+    const ink = '#1c2038', white = '#fffdf8';
     const style = Lk.hair || 'short';
-    // long hair behind the shoulders
-    if (style === 'long') { px(c, ox + 1, oy + 4, 10, 9, hair); px(c, ox, oy + 7, 12, 5, hair); }
-    // body
-    px(c, ox + 2, oy + 10, 8, 1, shirt); px(c, ox + 1, oy + 11, 10, 8, shirt);
+    if (style === 'long') { px(c, ox, oy + 3, 12, 12, hair); px(c, ox, oy + 8, 12, 7, hair); }
+    px(c, ox + 2, oy + 10, 8, 1, shirt);
+    px(c, ox + 1, oy + 11, 10, 8, shirt);
     px(c, ox + 1, oy + 11, 1, 8, shirtD); px(c, ox + 10, oy + 11, 1, 8, shirtD);
-    px(c, ox + 5, oy + 10, 2, 1, skinD);
-    if (style === 'hood') { px(c, ox + 4, oy + 11, 1, 3, '#d8d2c4'); px(c, ox + 7, oy + 11, 1, 3, '#d8d2c4'); }
-    // neck + head
-    px(c, ox + 5, oy + 9, 2, 1, skinD);
-    px(c, ox + 2, oy + 3, 8, 6, skin);
-    px(c, ox + 3, oy + 9, 6, 0, skin);
-    if (style !== 'long' && style !== 'hood') { px(c, ox + 1, oy + 5, 1, 2, skinD); px(c, ox + 10, oy + 5, 1, 2, skinD); }
-    // glasses lenses first
-    if (Lk.glasses) { px(c, ox + 3, oy + 5, 3, 2, '#cfeee9'); px(c, ox + 6, oy + 5, 3, 2, '#cfeee9'); }
-    // eyes
-    if (blink) { px(c, ox + 4, oy + 6, 1, 1, ink); px(c, ox + 7, oy + 6, 1, 1, ink); }
-    else { px(c, ox + 4, oy + 5, 1, 2, ink); px(c, ox + 7, oy + 5, 1, 2, ink); }
-    if (Lk.glasses) { px(c, ox + 3, oy + 4, 6, 1, ink); px(c, ox + 2, oy + 5, 1, 1, ink); px(c, ox + 9, oy + 5, 1, 1, ink); }
-    // blush + mouth
-    alpha(c, 0.35, () => { px(c, ox + 3, oy + 7, 1, 1, '#e0607e'); px(c, ox + 8, oy + 7, 1, 1, '#e0607e'); });
+    px(c, ox + 5, oy + 11, 2, 7, shirtD);
+    px(c, ox + 5, oy + 13, 2, 1, white); px(c, ox + 5, oy + 16, 2, 1, white);
+    px(c, ox + 2, oy + 11, 2, 1, shade(shirt, 0.35));
+    if (style === 'hood') { px(c, ox + 3, oy + 12, 2, 2, '#f4efe4'); px(c, ox + 7, oy + 12, 2, 2, '#f4efe4'); }
+    px(c, ox + 4, oy + 9, 4, 2, skin);
+    px(c, ox + 2, oy + 2, 8, 7, skin);
+    px(c, ox + 1, oy + 4, 10, 4, skin);
+    if (style !== 'long' && style !== 'hood') {
+      px(c, ox + 1, oy + 6, 1, 2, skinD); px(c, ox + 10, oy + 6, 1, 2, skinD);
+    }
+    if (Lk.glasses) { px(c, ox + 2, oy + 5, 4, 3, '#e7f7f3'); px(c, ox + 6, oy + 5, 4, 3, '#e7f7f3'); }
+    if (blink) {
+      px(c, ox + 3, oy + 6, 2, 1, ink); px(c, ox + 7, oy + 6, 2, 1, ink);
+    } else {
+      px(c, ox + 3, oy + 5, 2, 2, white); px(c, ox + 7, oy + 5, 2, 2, white);
+      px(c, ox + 4, oy + 6, 1, 1, ink); px(c, ox + 8, oy + 6, 1, 1, ink);
+      px(c, ox + 3, oy + 5, 1, 1, white);
+    }
+    if (Lk.glasses) {
+      px(c, ox + 2, oy + 4, 8, 1, ink);
+      px(c, ox + 2, oy + 5, 1, 3, ink); px(c, ox + 5, oy + 5, 1, 3, ink);
+      px(c, ox + 6, oy + 5, 1, 3, ink); px(c, ox + 9, oy + 5, 1, 3, ink);
+    }
+    px(c, ox + 4, oy + 8, 1, 1, shade(skin, -0.08));
     px(c, ox + 5, oy + 8, 2, 1, skinD);
-    // hair styles
+    px(c, ox + 7, oy + 8, 1, 1, shade(skin, -0.08));
     if (style === 'short' || style === 'long' || style === 'bun') {
-      px(c, ox + 2, oy + 1, 8, 1, hair); px(c, ox + 1, oy + 2, 10, 2, hair);
-      px(c, ox + 1, oy + 4, 1, 1, hair); px(c, ox + 10, oy + 4, 1, 1, hair);
-      px(c, ox + 2, oy + 3, 3, 1, hair); px(c, ox + 8, oy + 3, 2, 1, hair);
+      px(c, ox + 2, oy, 8, 2, hair); px(c, ox + 1, oy + 2, 10, 2, hair);
+      px(c, ox + 1, oy + 4, 1, 2, hair); px(c, ox + 10, oy + 4, 1, 2, hair);
+      px(c, ox + 2, oy + 3, 4, 1, hair); px(c, ox + 8, oy + 3, 2, 1, hair);
       px(c, ox + 3, oy + 1, 3, 1, hairL);
-      if (style === 'bun') { px(c, ox + 4, oy - 1, 4, 2, hair); px(c, ox + 5, oy - 2, 2, 1, hair); px(c, ox + 5, oy - 1, 1, 1, hairL); }
-      if (style === 'long') { px(c, ox + 1, oy + 4, 1, 6, hair); px(c, ox + 10, oy + 4, 1, 6, hair); }
+      if (style === 'bun') { px(c, ox + 4, oy - 2, 4, 2, hair); px(c, ox + 5, oy - 3, 2, 1, hair); px(c, ox + 5, oy - 2, 1, 1, hairL); }
+      if (style === 'long') { px(c, ox, oy + 4, 2, 8, hair); px(c, ox + 10, oy + 4, 2, 8, hair); }
     } else if (style === 'cap') {
       const cap = Lk.capColor || '#7a4bc2';
       px(c, ox + 1, oy + 4, 1, 2, hair); px(c, ox + 10, oy + 4, 1, 2, hair);
-      px(c, ox + 2, oy + 0, 8, 1, cap); px(c, ox + 1, oy + 1, 10, 2, cap);
-      px(c, ox + 1, oy + 3, 11, 1, shade(cap, -0.3)); px(c, ox + 5, oy + 1, 2, 1, shade(cap, 0.4));
+      px(c, ox + 2, oy, 8, 1, cap); px(c, ox + 1, oy + 1, 10, 2, cap);
+      px(c, ox, oy + 3, 12, 1, shade(cap, -0.28)); px(c, ox + 4, oy + 1, 3, 1, shade(cap, 0.4));
     } else if (style === 'hood') {
       const hd = hair, hdD = shade(hair, -0.35);
-      px(c, ox + 2, oy + 0, 8, 1, hd); px(c, ox + 1, oy + 1, 10, 2, hd);
-      px(c, ox + 0, oy + 3, 2, 8, hd); px(c, ox + 10, oy + 3, 2, 8, hd);
+      px(c, ox + 2, oy, 8, 1, hd); px(c, ox + 1, oy + 1, 10, 2, hd);
+      px(c, ox, oy + 3, 2, 8, hd); px(c, ox + 10, oy + 3, 2, 8, hd);
       px(c, ox + 2, oy + 3, 8, 1, hdD);
-      px(c, ox + 3, oy + 1, 3, 1, shade(hd, 0.2));
+      px(c, ox + 3, oy + 1, 3, 1, shade(hd, 0.22));
     }
     if (Lk.headset) {
-      const hs = '#26222e';
-      px(c, ox + 2, oy + 0, 8, 1, hs); px(c, ox + 1, oy + 1, 1, 3, hs); px(c, ox + 10, oy + 1, 1, 3, hs);
-      px(c, ox + 0, oy + 4, 2, 3, hs); px(c, ox + 10, oy + 4, 2, 3, hs);
+      const hs = '#2a3142';
+      px(c, ox + 2, oy, 8, 1, hs); px(c, ox + 1, oy + 1, 1, 3, hs); px(c, ox + 10, oy + 1, 1, 3, hs);
+      px(c, ox, oy + 4, 2, 3, hs); px(c, ox + 10, oy + 4, 2, 3, hs);
       px(c, ox + 1, oy + 7, 1, 1, hs); px(c, ox + 2, oy + 8, 2, 1, hs); px(c, ox + 4, oy + 8, 1, 1, '#e5484d');
     }
   }
 
   function drawRobot(c, Lk, ox, oy, blink, f) {
-    const metal = Lk.metal || '#b9c2cc', metalD = shade(metal, -0.3), metalL = shade(metal, 0.3);
-    const visor = Lk.visor || '#2dd4bf', shirt = Lk.shirt || '#0F766E', shirtD = shade(shirt, -0.25);
-    // body
+    const metal = Lk.metal || '#243044', metalD = shade(metal, -0.2), metalL = shade(metal, 0.28);
+    const visor = Lk.visor || '#7ddec4', shirt = Lk.shirt || '#2a7d48', shirtD = shade(shirt, -0.28);
     px(c, ox + 2, oy + 10, 8, 1, shirt); px(c, ox + 1, oy + 11, 10, 8, shirt);
     px(c, ox + 1, oy + 11, 1, 8, shirtD); px(c, ox + 10, oy + 11, 1, 8, shirtD);
-    px(c, ox + 5, oy + 12, 2, 1, f ? visor : shade(visor, -0.4));
-    // antenna
-    px(c, ox + 6, oy + 0, 1, 2, metalD); px(c, ox + 6, oy - 1, 1, 1, f ? '#ffffff' : visor);
-    // head
-    px(c, ox + 5, oy + 9, 2, 1, metalD);
+    px(c, ox + 5, oy + 12, 2, 1, f ? visor : shade(visor, -0.35));
+    px(c, ox + 5, oy + 14, 2, 1, '#f4e7c3');
+    px(c, ox + 5, oy, 2, 2, metalD); px(c, ox + 5, oy - 1, 2, 1, f ? '#fffdf8' : visor);
+    px(c, ox + 4, oy + 9, 4, 1, metalD);
     px(c, ox + 1, oy + 2, 10, 7, metal); px(c, ox + 1, oy + 2, 10, 1, metalL); px(c, ox + 1, oy + 8, 10, 1, metalD);
-    px(c, ox + 0, oy + 4, 1, 3, metalD); px(c, ox + 11, oy + 4, 1, 3, metalD);
-    // visor
-    px(c, ox + 2, oy + 4, 8, 3, '#0b1a1c');
-    if (blink) { px(c, ox + 3, oy + 5, 2, 1, shade(visor, -0.45)); px(c, ox + 7, oy + 5, 2, 1, shade(visor, -0.45)); }
-    else { px(c, ox + 3, oy + 5, 2, 1, visor); px(c, ox + 7, oy + 5, 2, 1, visor); }
-    px(c, ox + 4, oy + 7, 4, 1, metalD);
+    px(c, ox, oy + 4, 1, 3, metalD); px(c, ox + 11, oy + 4, 1, 3, metalD);
+    px(c, ox + 2, oy + 4, 8, 3, '#102026');
+    if (blink) {
+      px(c, ox + 3, oy + 5, 2, 1, shade(visor, -0.4)); px(c, ox + 7, oy + 5, 2, 1, shade(visor, -0.4));
+    } else {
+      px(c, ox + 3, oy + 5, 2, 2, visor); px(c, ox + 7, oy + 5, 2, 2, visor);
+      px(c, ox + 3, oy + 5, 1, 1, '#fffdf8');
+    }
+    px(c, ox + 1, oy + 2, 10, 1, '#1c2038');
+    px(c, ox, oy + 3, 1, 6, '#1c2038'); px(c, ox + 11, oy + 3, 1, 6, '#1c2038');
+    px(c, ox + 1, oy + 8, 10, 1, '#1c2038');
   }
 
   function drawCharacter(c, look, ox, oy, blink, f) {
@@ -492,14 +503,17 @@
     const W = r.W, f = state.frame % 2;
     c.setTransform(r.scale, 0, 0, r.scale, 0, 0);
     c.imageSmoothingEnabled = false;
-    const wall = ROOM_WALL[r.id] || '#2b2440';
-    px(c, 0, 0, W, 40, wall);
-    px(c, 0, 27, W, 13, shade(wall, -0.18)); px(c, 0, 27, W, 1, shade(wall, 0.12));
-    px(c, 0, 40, W, 2, '#17131f');
-    for (let y = 42, row = 0; y < H; y += 6, row++) {
-      px(c, 0, y, W, 6, row % 2 ? '#5d3f2c' : '#664633');
-      px(c, 0, y + 5, W, 1, '#4a3123');
-      for (let sx = (row * 11) % 18; sx < W; sx += 18) px(c, sx, y, 1, 5, '#4a3123');
+    const wall = ROOM_WALL[r.id] || '#e7efe4';
+    px(c, 0, 0, W, 54, wall);
+    px(c, 0, 46, W, 7, shade(wall, -0.045));
+    px(c, 0, 52, W, 2, shade(wall, -0.14));
+    for (let y = 54, row = 0; y < H; y += 4, row++) {
+      px(c, 0, y, W, 4, row % 2 ? '#efd3a6' : '#e4c48f');
+      px(c, 0, y + 3, W, 1, '#d2ae78');
+    }
+    if (r.id !== 'cafe') {
+      px(c, 4, 56, W - 8, H - 58, '#d7ebcf');
+      px(c, 4, 56, W - 8, 1, '#c5deb8');
     }
     drawDecor(c, r.id, W, f);
     r.slots.forEach((s) => alpha(c, 0.09, () => { px(c, s.cx - 20, 44, 40, 32, '#f4b860'); px(c, s.cx - 13, 46, 26, 28, '#f4b860'); }));
@@ -514,16 +528,16 @@
     const blink = !reduced && ((frameN + ag.seed) % 11 === 0);
     const bob = (!typing && !reduced && f) ? -1 : 0;
     const cx = s.cx, ox = cx - 6, oy = CHAR_Y + bob;
-    // chair
-    px(c, cx - 8, 49, 16, 9, '#3b3350'); px(c, cx - 8, 49, 16, 1, '#4c4266');
+    px(c, cx - 8, 49, 16, 10, '#314056'); px(c, cx - 8, 49, 16, 1, '#46556c');
+    px(c, cx - 7, 58, 14, 2, '#243140');
     drawCharacter(c, look, ox, oy, blink, f);
-    // screen glow on the face
-    alpha(c, 0.13, () => px(c, cx - 5, oy + 3, 10, 7, '#2dd4bf'));
-    // desk
-    px(c, cx - 16, DESK_Y, 32, 1, '#c08551'); px(c, cx - 16, DESK_Y + 1, 32, 2, '#a0683f');
-    px(c, cx - 16, DESK_Y + 3, 32, 9, '#7a4a2c'); px(c, cx - 16, DESK_Y + 3, 32, 1, '#5e3820');
-    px(c, cx + 5, DESK_Y + 5, 8, 4, '#6b4027'); px(c, cx + 8, DESK_Y + 6, 2, 1, '#d8b07a');
-    px(c, cx - 15, DESK_Y + 12, 2, 4, '#5e3820'); px(c, cx + 13, DESK_Y + 12, 2, 4, '#5e3820');
+    alpha(c, 0.1, () => px(c, cx - 5, oy + 4, 10, 6, '#7ddec4'));
+    px(c, cx - 16, DESK_Y, 32, 2, '#f0d7b0');
+    px(c, cx - 16, DESK_Y + 2, 32, 2, '#c4925a');
+    px(c, cx - 16, DESK_Y + 4, 32, 8, '#a87442');
+    px(c, cx - 16, DESK_Y + 4, 32, 1, '#8a5e34');
+    px(c, cx + 6, DESK_Y + 6, 7, 3, '#8a5e34'); px(c, cx + 8, DESK_Y + 7, 2, 1, '#f0d7b0');
+    px(c, cx - 15, DESK_Y + 12, 2, 4, '#8a5e34'); px(c, cx + 13, DESK_Y + 12, 2, 4, '#8a5e34');
     // laptop (back side)
     px(c, cx - 5, DESK_Y - 5, 10, 5, '#c9c4d4'); px(c, cx - 5, DESK_Y - 5, 10, 1, '#e4e0ec');
     px(c, cx - 1, DESK_Y - 3, 2, 2, (typing && f) ? '#5eead4' : '#0F766E');
@@ -554,11 +568,11 @@
       slot.cx = cx;
       const ag = state.agents.get(slot.id);
       ag.hit.style.left = ((cx - 17) / W * 100) + '%';
-      ag.hit.style.top = (40 / H * 100) + '%';
+      ag.hit.style.top = (34 / H * 100) + '%';
       ag.hit.style.width = (34 / W * 100) + '%';
-      ag.hit.style.height = (36 / H * 100) + '%';
+      ag.hit.style.height = (40 / H * 100) + '%';
       ag.bubble.style.left = (cx / W * 100) + '%';
-      ag.bubble.style.bottom = (100 - (41 / H * 100)) + '%';
+      ag.bubble.style.bottom = (100 - (36 / H * 100)) + '%';
     });
   }
   function sizeRoom(r) {
@@ -848,30 +862,30 @@
     const cv = $('#card-sprite'); const s = 6;
     cv.width = 16 * s; cv.height = 18 * s;
     const c = cv.getContext('2d'); c.setTransform(s, 0, 0, s, 0, 0); c.imageSmoothingEnabled = false;
-    px(c, 0, 0, 16, 18, '#18141f');
-    alpha(c, 0.18, () => px(c, 0, 0, 16, 18, ROOM_ACCENT[ag.room.id] || '#14b8a6'));
-    drawCharacter(c, ag.a.look || {}, 2, 2, false, 1);
+    px(c, 0, 0, 16, 18, '#e7f3e4');
+    alpha(c, 0.28, () => px(c, 0, 0, 16, 18, ROOM_ACCENT[ag.room.id] || '#2a7d48'));
+    drawCharacter(c, ag.a.look || {}, 2, 3, false, 1);
   }
 
   /* -------------------------------------------------------- small art */
   function drawBrand() {
     const cv = $('.brand-logo'); const s = 4; cv.width = 16 * s; cv.height = 16 * s;
     const c = cv.getContext('2d'); c.setTransform(s, 0, 0, s, 0, 0);
-    px(c, 3, 3, 10, 11, '#0F766E'); px(c, 3, 3, 10, 1, '#14b8a6');
-    [[4, 4, '#ffd27a'], [7, 4, '#2dd4bf'], [10, 4, '#ffd27a'], [4, 7, '#2dd4bf'], [7, 7, '#ffd27a'], [10, 7, '#134e4a'], [4, 10, '#ffd27a'], [10, 10, '#2dd4bf']]
-      .forEach(([x, y, col]) => px(c, x, y, 2, 2, col));
-    px(c, 7, 11, 2, 3, '#14111d'); px(c, 1, 14, 14, 1, '#3a3350');
+    px(c, 2, 4, 12, 8, '#2a7d48'); px(c, 2, 4, 12, 1, '#3d9a5c');
+    [[4, 6], [8, 6], [4, 9], [10, 9]].forEach(([x, y]) => px(c, x, y, 2, 2, '#f4e7c3'));
+    px(c, 7, 9, 2, 2, '#1f5e36');
+    px(c, 6, 10, 4, 2, '#1f2340'); px(c, 1, 13, 14, 1, '#c4a06e');
   }
   function drawYou() {
     const cv = $('.you-avatar'); const s = 4; cv.width = 12 * s; cv.height = 12 * s;
     const c = cv.getContext('2d'); c.setTransform(s, 0, 0, s, 0, 0);
     const skin = '#d9a477', hair = '#2a1f1a';
-    px(c, 1, 10, 10, 2, '#0F766E');
-    px(c, 5, 9, 2, 1, shade(skin, -0.2));
+    px(c, 1, 10, 10, 2, '#2a7d48');
+    px(c, 4, 9, 4, 1, shade(skin, -0.18));
     px(c, 2, 3, 8, 6, skin);
     px(c, 2, 1, 8, 1, hair); px(c, 1, 2, 10, 2, hair); px(c, 1, 4, 1, 2, hair); px(c, 10, 4, 1, 2, hair);
-    px(c, 2, 7, 1, 2, hair); px(c, 9, 7, 1, 2, hair); px(c, 3, 8, 6, 1, hair);
-    px(c, 4, 5, 1, 1, '#1b1420'); px(c, 7, 5, 1, 1, '#1b1420');
+    px(c, 3, 5, 2, 2, '#fffdf8'); px(c, 7, 5, 2, 2, '#fffdf8');
+    px(c, 4, 6, 1, 1, '#1c2038'); px(c, 8, 6, 1, 1, '#1c2038');
   }
 
   /* --------------------------------------------------------- language */
