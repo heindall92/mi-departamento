@@ -2,7 +2,9 @@
 
 **Mis agentes de IA, trabajando.** Una oficina pixel-art (turno de noche, con vistas a la ría de Huelva) donde se ve al equipo de agentes de IA de Yoandy Ramírez en sus salas, con su estado y una actividad de ejemplo entre ellos.
 
-🔗 En vivo: https://heindall92.github.io/mi-departamento/
+🔗 En vivo (GitHub Pages, hasta el primer despliegue): https://heindall92.github.io/mi-departamento/
+
+El alojamiento de destino es **Cloudflare Workers** (activos estáticos). Tras el primer `wrangler deploy` la oficina queda en `https://mi-departamento.<subdominio>.workers.dev`. El dominio propio se engancha en el panel de Cloudflare, en el Worker `mi-departamento`.
 
 > **Demo:** la actividad es simulada. Los mensajes salen de un guion (`data/feed.json`), no de los agentes reales.
 
@@ -16,16 +18,20 @@
 
 ## Cómo funciona
 
-- HTML + CSS + JavaScript sin dependencias ni paso de build. Se sirve tal cual desde GitHub Pages.
+- HTML + CSS + JavaScript sin dependencias. En local se abre tal cual. Para Cloudflare, `scripts/stage-dist.sh` copia el sitio a `dist/` y `wrangler deploy` publica esa carpeta.
 - Todo el arte se dibuja con rectángulos en `<canvas>` (`js/app.js`) y se escala con `image-rendering: pixelated`. No hay imágenes externas.
 - Animaciones simples (respirar / teclear a 2 fotogramas, LEDs, estrellas). Con `prefers-reduced-motion` se desactivan y el sobre no viaja.
 
 ```
 index.html          estructura y textos base
+404.html            página cuando la ruta no existe
 css/styles.css      estilos (oficina nocturna, acento #0F766E)
 js/app.js           dibujo, i18n, feed, fichas
 data/office.json    salas y agentes
 data/feed.json      guion de la actividad
+wrangler.jsonc      Cloudflare Workers, activos en dist/
+_headers            caché y cabeceras de seguridad
+scripts/stage-dist.sh   prepara dist/
 ```
 
 Para probar en local (hace falta un servidor por el `fetch` de los JSON):
@@ -34,6 +40,33 @@ Para probar en local (hace falta un servidor por el `fetch` de los JSON):
 python3 -m http.server 8000
 # abre http://localhost:8000
 ```
+
+La misma copia que se publica:
+
+```bash
+bash scripts/stage-dist.sh
+python3 -m http.server 8000 --directory dist
+```
+
+## Publicar en Cloudflare
+
+Cada push a `main` ejecuta `.github/workflows/cloudflare.yml`. El job de comprobación arma `dist/` y pide el HTML, el CSS, el JS y los dos JSON. El job de publicación solo corre en `main` y solo si el repositorio tiene estos secretos:
+
+| Secreto | Dónde sale |
+| --- | --- |
+| `CLOUDFLARE_ACCOUNT_ID` | Panel de Cloudflare → cuenta → ID de cuenta |
+| `CLOUDFLARE_API_TOKEN` | Token con permiso **Account → Workers Scripts → Edit** |
+
+Sin esos secretos el workflow avisa y no falla el despliegue: GitHub Pages sigue sirviendo el repositorio. Con ellos, `npx wrangler deploy` sube el Worker `mi-departamento`.
+
+A mano, con Wrangler ya autenticado:
+
+```bash
+bash scripts/stage-dist.sh
+npx wrangler deploy
+```
+
+`_headers` deja HTML y `404.html` sin caché larga, CSS, JS y el favicon un día, y `data/*.json` un minuto. Las rutas desconocidas responden con `404.html`.
 
 ## Los datos
 
@@ -109,7 +142,7 @@ jobs:
           git push
 ```
 
-GitHub Pages republica solo tras el push. Recomendaciones:
+El push a `main` dispara el workflow de Cloudflare (y GitHub Pages, mientras siga activo). Recomendaciones:
 
 - Validar el JSON antes de hacer commit (`python3 -m json.tool data/feed.json`).
 - No publicar datos sensibles: la web es pública. Resume la actividad («propuesta lista para revisar»), sin nombres de clientes ni importes privados.
