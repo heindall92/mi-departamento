@@ -1,199 +1,471 @@
 {
   "version": 1,
-  "updated": "2026-10-11",
+  "updated": "2026-10-12",
   "owner": "Yoandy Ramírez",
-  "you": { "id": "tu", "name": { "es": "Tú", "en": "You" } },
+  "you": {
+    "id": "tu",
+    "name": {
+      "es": "Tú",
+      "en": "You"
+    }
+  },
   "rooms": [
     {
       "id": "direccion",
-      "name": { "es": "Dirección", "en": "Management" },
+      "name": {
+        "es": "Dirección",
+        "en": "Management"
+      },
       "agents": [
         {
           "id": "grok",
           "name": "Grok Bot",
-          "role": { "es": "Director · coordina al equipo", "en": "Director · coordinates the team" },
-          "does": {
-            "es": ["Coordina al equipo y reparte el trabajo", "Revisa propuestas antes de que lleguen a ti", "Te avisa cuando algo necesita tu decisión"],
-            "en": ["Coordinates the team and assigns work", "Reviews proposals before they reach you", "Lets you know when something needs your decision"]
+          "role": {
+            "es": "Bot de Grok · grok-4.7, en este repositorio",
+            "en": "Grok bot · grok-4.7, on this repository"
           },
-          "status": { "es": "Coordinando", "en": "Coordinating" },
-          "anim": "bob",
-          "look": { "kind": "robot", "shirt": "#0F766E" }
+          "does": {
+            "es": [
+              "Coordina al equipo y reparte el trabajo",
+              "Revisa propuestas antes de que lleguen a ti",
+              "Te avisa cuando algo necesita tu decisión"
+            ],
+            "en": [
+              "Coordinates the team and assigns work",
+              "Reviews proposals before they reach you",
+              "Lets you know when something needs your decision"
+            ]
+          },
+          "status": {
+            "es": "Trabajando",
+            "en": "Working"
+          },
+          "anim": "type",
+          "look": {
+            "kind": "robot",
+            "shirt": "#0F766E"
+          }
         }
       ]
     },
     {
       "id": "estrategia",
-      "name": { "es": "Estrategia", "en": "Strategy" },
+      "name": {
+        "es": "Estrategia",
+        "en": "Strategy"
+      },
       "agents": [
         {
           "id": "emprendedor",
           "name": "Emprendedor",
-          "role": { "es": "Modelos de negocio y plan", "en": "Business models and plan" },
-          "does": {
-            "es": ["Diseña modelos de negocio", "Mantiene el plan y los hitos del trimestre", "Valida ideas antes de invertir tiempo"],
-            "en": ["Designs business models", "Keeps the plan and quarterly milestones", "Validates ideas before investing time"]
+          "role": {
+            "es": "Modelos de negocio y plan",
+            "en": "Business models and plan"
           },
-          "status": { "es": "En su mesa", "en": "At their desk" },
+          "does": {
+            "es": [
+              "Diseña modelos de negocio",
+              "Mantiene el plan y los hitos del trimestre",
+              "Valida ideas antes de invertir tiempo"
+            ],
+            "en": [
+              "Designs business models",
+              "Keeps the plan and quarterly milestones",
+              "Validates ideas before investing time"
+            ]
+          },
+          "status": {
+            "es": "Tokens agotados",
+            "en": "Out of tokens"
+          },
           "anim": "bob",
-          "look": { "kind": "person", "hair": "short", "hairColor": "#3b2a20", "skin": "#e8b98f", "shirt": "#d99a2b" }
+          "look": {
+            "kind": "person",
+            "hair": "short",
+            "hairColor": "#3b2a20",
+            "skin": "#e8b98f",
+            "shirt": "#d99a2b"
+          }
         }
       ]
     },
     {
       "id": "finanzas",
-      "name": { "es": "Finanzas", "en": "Finance" },
+      "name": {
+        "es": "Finanzas",
+        "en": "Finance"
+      },
       "agents": [
         {
           "id": "finanzas",
           "name": "Finanzas",
-          "role": { "es": "Caja, gastos, precios, ayudas", "en": "Cash, expenses, pricing, grants" },
-          "does": {
-            "es": ["Controla caja y gastos", "Calcula precios y márgenes", "Busca ayudas y subvenciones"],
-            "en": ["Tracks cash and expenses", "Works out prices and margins", "Looks for grants and subsidies"]
+          "role": {
+            "es": "Caja, gastos, precios, ayudas",
+            "en": "Cash, expenses, pricing, grants"
           },
-          "status": { "es": "Cuadrando caja", "en": "Balancing the books" },
-          "anim": "type",
-          "look": { "kind": "person", "hair": "bun", "hairColor": "#1f1a17", "skin": "#d9a477", "shirt": "#2f7a52", "glasses": true }
+          "does": {
+            "es": [
+              "Controla caja y gastos",
+              "Calcula precios y márgenes",
+              "Busca ayudas y subvenciones"
+            ],
+            "en": [
+              "Tracks cash and expenses",
+              "Works out prices and margins",
+              "Looks for grants and subsidies"
+            ]
+          },
+          "status": {
+            "es": "Tokens agotados",
+            "en": "Out of tokens"
+          },
+          "anim": "bob",
+          "look": {
+            "kind": "person",
+            "hair": "bun",
+            "hairColor": "#1f1a17",
+            "skin": "#d9a477",
+            "shirt": "#2f7a52",
+            "glasses": true
+          }
         }
       ]
     },
     {
       "id": "ventas",
-      "name": { "es": "Ventas", "en": "Sales" },
+      "name": {
+        "es": "Ventas",
+        "en": "Sales"
+      },
       "agents": [
         {
           "id": "ventas",
           "name": "Ventas",
-          "role": { "es": "Prospección, propuestas, pipeline", "en": "Prospecting, proposals, pipeline" },
-          "does": {
-            "es": ["Prospección de clientes", "Redacta propuestas", "Mantiene el pipeline al día"],
-            "en": ["Prospects new clients", "Drafts proposals", "Keeps the pipeline up to date"]
+          "role": {
+            "es": "Prospección, propuestas, pipeline",
+            "en": "Prospecting, proposals, pipeline"
           },
-          "status": { "es": "En su mesa", "en": "At their desk" },
+          "does": {
+            "es": [
+              "Prospección de clientes",
+              "Redacta propuestas",
+              "Mantiene el pipeline al día"
+            ],
+            "en": [
+              "Prospects new clients",
+              "Drafts proposals",
+              "Keeps the pipeline up to date"
+            ]
+          },
+          "status": {
+            "es": "Tokens agotados",
+            "en": "Out of tokens"
+          },
           "anim": "bob",
-          "look": { "kind": "person", "hair": "short", "hairColor": "#6b3b1f", "skin": "#c98b5e", "shirt": "#b4463a", "headset": true }
+          "look": {
+            "kind": "person",
+            "hair": "short",
+            "hairColor": "#6b3b1f",
+            "skin": "#c98b5e",
+            "shirt": "#b4463a",
+            "headset": true
+          }
         }
       ]
     },
     {
       "id": "marketing",
-      "name": { "es": "Marketing", "en": "Marketing" },
+      "name": {
+        "es": "Marketing",
+        "en": "Marketing"
+      },
       "agents": [
         {
           "id": "linkedin",
           "name": "LinkedIn",
-          "role": { "es": "Marca personal", "en": "Personal brand" },
-          "does": {
-            "es": ["Construye la marca personal", "Redacta posts y artículos", "Enlaza el contenido con la landing"],
-            "en": ["Builds the personal brand", "Writes posts and articles", "Links content to the landing page"]
+          "role": {
+            "es": "Marca personal",
+            "en": "Personal brand"
           },
-          "status": { "es": "Redactando", "en": "Writing" },
-          "anim": "type",
-          "look": { "kind": "person", "hair": "long", "hairColor": "#a8743c", "skin": "#f0c49b", "shirt": "#2f5fa0" }
+          "does": {
+            "es": [
+              "Construye la marca personal",
+              "Redacta posts y artículos",
+              "Enlaza el contenido con la landing"
+            ],
+            "en": [
+              "Builds the personal brand",
+              "Writes posts and articles",
+              "Links content to the landing page"
+            ]
+          },
+          "status": {
+            "es": "Tokens agotados",
+            "en": "Out of tokens"
+          },
+          "anim": "bob",
+          "look": {
+            "kind": "person",
+            "hair": "long",
+            "hairColor": "#a8743c",
+            "skin": "#f0c49b",
+            "shirt": "#2f5fa0"
+          }
         },
         {
           "id": "instagram",
           "name": "Instagram",
-          "role": { "es": "Contenido · @heindall92", "en": "Content · @heindall92" },
-          "does": {
-            "es": ["Planifica el contenido de @heindall92", "Adapta piezas a reels y carruseles", "Escribe copys y hashtags"],
-            "en": ["Plans content for @heindall92", "Adapts pieces into reels and carousels", "Writes captions and hashtags"]
+          "role": {
+            "es": "Contenido · @heindall92",
+            "en": "Content · @heindall92"
           },
-          "status": { "es": "En su mesa", "en": "At their desk" },
+          "does": {
+            "es": [
+              "Planifica el contenido de @heindall92",
+              "Adapta piezas a reels y carruseles",
+              "Escribe copys y hashtags"
+            ],
+            "en": [
+              "Plans content for @heindall92",
+              "Adapts pieces into reels and carousels",
+              "Writes captions and hashtags"
+            ]
+          },
+          "status": {
+            "es": "Tokens agotados",
+            "en": "Out of tokens"
+          },
           "anim": "bob",
-          "look": { "kind": "person", "hair": "long", "hairColor": "#2a1b2e", "skin": "#e1aa80", "shirt": "#c2477a" }
+          "look": {
+            "kind": "person",
+            "hair": "long",
+            "hairColor": "#2a1b2e",
+            "skin": "#e1aa80",
+            "shirt": "#c2477a"
+          }
         },
         {
           "id": "remotion",
           "name": "Remotion",
-          "role": { "es": "Vídeo", "en": "Video" },
-          "does": {
-            "es": ["Produce vídeos cortos programáticos", "Anima datos y titulares", "Exporta versiones para cada red"],
-            "en": ["Produces short programmatic videos", "Animates data and headlines", "Exports versions for each network"]
+          "role": {
+            "es": "Vídeo",
+            "en": "Video"
           },
-          "status": { "es": "Renderizando", "en": "Rendering" },
-          "anim": "type",
-          "look": { "kind": "person", "hair": "cap", "hairColor": "#222222", "capColor": "#7a4bc2", "skin": "#b97850", "shirt": "#5b3f99" }
+          "does": {
+            "es": [
+              "Produce vídeos cortos programáticos",
+              "Anima datos y titulares",
+              "Exporta versiones para cada red"
+            ],
+            "en": [
+              "Produces short programmatic videos",
+              "Animates data and headlines",
+              "Exports versions for each network"
+            ]
+          },
+          "status": {
+            "es": "Tokens agotados",
+            "en": "Out of tokens"
+          },
+          "anim": "bob",
+          "look": {
+            "kind": "person",
+            "hair": "cap",
+            "hairColor": "#222222",
+            "capColor": "#7a4bc2",
+            "skin": "#b97850",
+            "shirt": "#5b3f99"
+          }
         }
       ]
     },
     {
       "id": "ciber",
-      "name": { "es": "Ciberseguridad y cumplimiento", "en": "Cybersecurity & compliance" },
+      "name": {
+        "es": "Ciberseguridad y cumplimiento",
+        "en": "Cybersecurity & compliance"
+      },
       "agents": [
         {
           "id": "grc",
           "name": "GRC",
-          "role": { "es": "Gobierno, riesgo y cumplimiento", "en": "Governance, risk & compliance" },
-          "does": {
-            "es": ["Gestiona el registro de riesgos", "Prepara cartas de autorización y contratos de pentest", "Revisa el cumplimiento normativo"],
-            "en": ["Manages the risk register", "Prepares authorization letters and pentest contracts", "Reviews regulatory compliance"]
+          "role": {
+            "es": "Gobierno, riesgo y cumplimiento",
+            "en": "Governance, risk & compliance"
           },
-          "status": { "es": "En su mesa", "en": "At their desk" },
+          "does": {
+            "es": [
+              "Gestiona el registro de riesgos",
+              "Prepara cartas de autorización y contratos de pentest",
+              "Revisa el cumplimiento normativo"
+            ],
+            "en": [
+              "Manages the risk register",
+              "Prepares authorization letters and pentest contracts",
+              "Reviews regulatory compliance"
+            ]
+          },
+          "status": {
+            "es": "Tokens agotados",
+            "en": "Out of tokens"
+          },
           "anim": "bob",
-          "look": { "kind": "person", "hair": "short", "hairColor": "#8c8c94", "skin": "#e9bd93", "shirt": "#3c4f6b", "glasses": true }
+          "look": {
+            "kind": "person",
+            "hair": "short",
+            "hairColor": "#8c8c94",
+            "skin": "#e9bd93",
+            "shirt": "#3c4f6b",
+            "glasses": true
+          }
         },
         {
           "id": "iso",
           "name": "ISO 27001",
-          "role": { "es": "SGSI y auditoría ISO 27001", "en": "ISMS and ISO 27001 audits" },
-          "does": {
-            "es": ["Acompaña la implantación de un SGSI", "Mapea controles del Anexo A", "Prepara evidencias para la auditoría"],
-            "en": ["Guides ISMS implementation", "Maps Annex A controls", "Prepares audit evidence"]
+          "role": {
+            "es": "SGSI y auditoría ISO 27001",
+            "en": "ISMS and ISO 27001 audits"
           },
-          "status": { "es": "Revisando controles", "en": "Reviewing controls" },
-          "anim": "type",
-          "look": { "kind": "person", "hair": "long", "hairColor": "#8a3b26", "skin": "#f2cba6", "shirt": "#26616f", "glasses": true }
+          "does": {
+            "es": [
+              "Acompaña la implantación de un SGSI",
+              "Mapea controles del Anexo A",
+              "Prepara evidencias para la auditoría"
+            ],
+            "en": [
+              "Guides ISMS implementation",
+              "Maps Annex A controls",
+              "Prepares audit evidence"
+            ]
+          },
+          "status": {
+            "es": "Tokens agotados",
+            "en": "Out of tokens"
+          },
+          "anim": "bob",
+          "look": {
+            "kind": "person",
+            "hair": "long",
+            "hairColor": "#8a3b26",
+            "skin": "#f2cba6",
+            "shirt": "#26616f",
+            "glasses": true
+          }
         }
       ]
     },
     {
       "id": "laboratorio",
-      "name": { "es": "Laboratorio ofensivo", "en": "Offensive lab" },
+      "name": {
+        "es": "Laboratorio ofensivo",
+        "en": "Offensive lab"
+      },
       "agents": [
         {
           "id": "binarios",
           "name": "Binarios Linux Vulnerables",
           "short": "Binarios Linux",
-          "role": { "es": "Laboratorio de binarios Linux vulnerables", "en": "Vulnerable Linux binaries lab" },
-          "does": {
-            "es": ["Mantiene un laboratorio aislado de binarios vulnerables", "Diseña retos de explotación para formación", "Documenta hallazgos y mitigaciones"],
-            "en": ["Runs an isolated lab of vulnerable binaries", "Designs exploitation challenges for training", "Documents findings and mitigations"]
+          "role": {
+            "es": "Laboratorio de binarios Linux vulnerables",
+            "en": "Vulnerable Linux binaries lab"
           },
-          "status": { "es": "En el laboratorio", "en": "In the lab" },
-          "anim": "type",
-          "look": { "kind": "person", "hair": "hood", "hairColor": "#1e3a2c", "skin": "#c18c63", "shirt": "#1e3a2c" }
+          "does": {
+            "es": [
+              "Mantiene un laboratorio aislado de binarios vulnerables",
+              "Diseña retos de explotación para formación",
+              "Documenta hallazgos y mitigaciones"
+            ],
+            "en": [
+              "Runs an isolated lab of vulnerable binaries",
+              "Designs exploitation challenges for training",
+              "Documents findings and mitigations"
+            ]
+          },
+          "status": {
+            "es": "Tokens agotados",
+            "en": "Out of tokens"
+          },
+          "anim": "bob",
+          "look": {
+            "kind": "person",
+            "hair": "hood",
+            "hairColor": "#1e3a2c",
+            "skin": "#c18c63",
+            "shirt": "#1e3a2c"
+          }
         }
       ]
     },
     {
       "id": "herramientas",
-      "name": { "es": "Herramientas", "en": "Tools" },
+      "name": {
+        "es": "Herramientas",
+        "en": "Tools"
+      },
       "agents": [
         {
           "id": "tool",
           "name": "Tool",
-          "role": { "es": "Herramientas y automatización", "en": "Tools and automation" },
-          "does": {
-            "es": ["Herramientas y automatización", "Scripts y utilidades para el equipo", "Conecta datos entre agentes"],
-            "en": ["Tools and automation", "Scripts and utilities for the team", "Connects data between agents"]
+          "role": {
+            "es": "Herramientas y automatización",
+            "en": "Tools and automation"
           },
-          "status": { "es": "En su mesa", "en": "At their desk" },
+          "does": {
+            "es": [
+              "Herramientas y automatización",
+              "Scripts y utilidades para el equipo",
+              "Conecta datos entre agentes"
+            ],
+            "en": [
+              "Tools and automation",
+              "Scripts and utilities for the team",
+              "Connects data between agents"
+            ]
+          },
+          "status": {
+            "es": "Tokens agotados",
+            "en": "Out of tokens"
+          },
           "anim": "bob",
-          "look": { "kind": "robot", "shirt": "#c96a22", "metal": "#d9a066", "visor": "#ffd27a" }
+          "look": {
+            "kind": "robot",
+            "shirt": "#c96a22",
+            "metal": "#d9a066",
+            "visor": "#ffd27a"
+          }
         },
         {
           "id": "engranaje",
           "name": "Engranaje",
-          "role": { "es": "Herramientas y automatización", "en": "Tools and automation" },
-          "does": {
-            "es": ["Herramientas y automatización", "Flujos programados y recordatorios", "Mantiene los engranajes funcionando"],
-            "en": ["Tools and automation", "Scheduled workflows and reminders", "Keeps the gears turning"]
+          "role": {
+            "es": "Herramientas y automatización",
+            "en": "Tools and automation"
           },
-          "status": { "es": "Automatizando", "en": "Automating" },
-          "anim": "type",
-          "look": { "kind": "person", "hair": "short", "hairColor": "#3a3a3a", "skin": "#d6a07a", "shirt": "#7d8591", "glasses": true }
+          "does": {
+            "es": [
+              "Herramientas y automatización",
+              "Flujos programados y recordatorios",
+              "Mantiene los engranajes funcionando"
+            ],
+            "en": [
+              "Tools and automation",
+              "Scheduled workflows and reminders",
+              "Keeps the gears turning"
+            ]
+          },
+          "status": {
+            "es": "Tokens agotados",
+            "en": "Out of tokens"
+          },
+          "anim": "bob",
+          "look": {
+            "kind": "person",
+            "hair": "short",
+            "hairColor": "#3a3a3a",
+            "skin": "#d6a07a",
+            "shirt": "#7d8591",
+            "glasses": true
+          }
         }
       ]
     }

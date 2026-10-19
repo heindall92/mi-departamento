@@ -2,20 +2,29 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Mi Departamento · Yoandy Ramírez</title>
-  <meta name="description" content="Mis agentes de IA, trabajando: una oficina pixel-art del turno de noche.">
-  <meta name="theme-color" content="#14111d">
-  <meta property="og:title" content="Mi Departamento">
-  <meta property="og:description" content="Mis agentes de IA, trabajando.">
+  <meta name="description" content="Mis agentes de IA, trabajando: una oficina pixel-art con vistas a la ría de Huelva.">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#f3f6ef">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&family=Silkscreen&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-  <a class="skip" href="#actividad" data-i18n="skip">Saltar a la actividad</a>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <symbol id="i-play" viewBox="0 0 9 9"><path d="M1 1h2v1h-2zM1 2h4v1h-4zM1 3h6v1h-6zM1 4h7v1h-7zM1 5h6v1h-6zM1 6h4v1h-4zM1 7h2v1h-2z"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 9 9"><path d="M3 0h3v1h-3zM3 1h3v1h-3zM3 2h3v1h-3zM3 3h3v1h-3zM3 4h3v1h-3zM3 6h3v1h-3zM3 7h3v1h-3z"/></symbol>
+    <symbol id="i-check" viewBox="0 0 9 9"><path d="M7 1h2v1h-2zM6 2h3v1h-3zM5 3h3v1h-3zM0 4h2v1h-2zM4 4h3v1h-3zM0 5h3v1h-3zM4 5h2v1h-2zM1 6h5v1h-5zM2 7h3v1h-3z"/></symbol>
+    <symbol id="i-mail" viewBox="0 0 9 9"><path d="M0 1h9v1h-9zM0 2h2v1h-2zM7 2h2v1h-2zM0 3h1v1h-1zM2 3h1v1h-1zM6 3h1v1h-1zM8 3h1v1h-1zM0 4h1v1h-1zM3 4h1v1h-1zM5 4h1v1h-1zM8 4h1v1h-1zM0 5h1v1h-1zM4 5h1v1h-1zM8 5h1v1h-1zM0 6h1v1h-1zM8 6h1v1h-1zM0 7h9v1h-9z"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 9 9"><path d="M2 0h5v1h-5zM1 1h1v1h-1zM7 1h1v1h-1zM0 2h1v1h-1zM4 2h1v1h-1zM8 2h1v1h-1zM0 3h1v1h-1zM4 3h1v1h-1zM8 3h1v1h-1zM0 4h1v1h-1zM4 4h3v1h-3zM8 4h1v1h-1zM0 5h1v1h-1zM8 5h1v1h-1zM1 6h1v1h-1zM7 6h1v1h-1zM2 7h5v1h-5z"/></symbol>
+    <symbol id="i-tray" viewBox="0 0 9 9"><path d="M0 2h1v1h-1zM8 2h1v1h-1zM0 3h1v1h-1zM8 3h1v1h-1zM0 4h1v1h-1zM8 4h1v1h-1zM0 5h3v1h-3zM6 5h3v1h-3zM0 6h1v1h-1zM3 6h3v1h-3zM8 6h1v1h-1zM0 7h1v1h-1zM8 7h1v1h-1zM0 8h9v1h-9z"/></symbol>
+    <symbol id="i-office" viewBox="0 0 9 9"><path d="M4 0h1v1h-1zM3 1h3v1h-3zM2 2h5v1h-5zM1 3h7v1h-7zM2 4h1v1h-1zM6 4h1v1h-1zM2 5h1v1h-1zM4 5h1v1h-1zM6 5h1v1h-1zM2 6h1v1h-1zM6 6h1v1h-1zM2 7h5v1h-5z"/></symbol>
+    <symbol id="i-list" viewBox="0 0 9 9"><path d="M0 1h2v1h-2zM3 1h6v1h-6zM0 3h2v1h-2zM3 3h6v1h-6zM0 5h2v1h-2zM3 5h6v1h-6zM0 7h2v1h-2zM3 7h6v1h-6z"/></symbol>
+    <symbol id="i-team" viewBox="0 0 9 9"><path d="M1 0h2v1h-2zM6 0h2v1h-2zM0 1h4v1h-4zM5 1h4v1h-4zM0 2h4v1h-4zM5 2h4v1h-4zM1 3h2v1h-2zM6 3h2v1h-2zM0 5h9v1h-9zM0 6h9v1h-9zM0 7h9v1h-9z"/></symbol>
+    <symbol id="i-close" viewBox="0 0 9 9"><path d="M1 1h1v1h-1zM7 1h1v1h-1zM2 2h1v1h-1zM6 2h1v1h-1zM3 3h1v1h-1zM5 3h1v1h-1zM4 4h1v1h-1zM3 5h1v1h-1zM5 5h1v1h-1zM2 6h1v1h-1zM6 6h1v1h-1zM1 7h1v1h-1zM7 7h1v1h-1z"/></symbol>
+    <symbol id="i-board" viewBox="0 0 9 9"><path d="M0 1h9v1h-9zM0 2h1v1h-1zM8 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM8 3h1v1h-1zM0 4h1v1h-1zM8 4h1v1h-1zM0 5h1v1h-1zM2 5h5v1h-5zM8 5h1v1h-1zM0 6h1v1h-1zM8 6h1v1h-1zM0 7h9v1h-9zM3 8h1v1h-1zM5 8h1v1h-1z"/></symbol>
+  </svg>
+  <a class="skip" href="#bandeja" data-i18n="skip">Saltar a tu bandeja</a>
 
   <header class="topbar">
     <div class="brand">
@@ -23,10 +32,11 @@
       <span class="brand-name" data-i18n="title">Mi Departamento</span>
     </div>
     <div class="topbar-right">
-      <button class="you" id="you" type="button" data-i18n-aria="youAria" aria-label="Tú (Yoandy Ramírez)">
+      <a class="you" id="you" href="#bandeja">
         <canvas class="you-avatar" width="12" height="12" aria-hidden="true"></canvas>
         <span class="you-name" data-i18n="you">Tú</span>
-      </button>
+        <span class="count" id="you-count" hidden></span>
+      </a>
       <div class="seg" role="group" data-i18n-aria="langGroup" aria-label="Idioma">
         <button type="button" class="seg-btn" data-lang="es" aria-pressed="true" aria-label="Español">ES</button>
         <button type="button" class="seg-btn" data-lang="en" aria-pressed="false" aria-label="English">EN</button>
@@ -39,40 +49,76 @@
     <p class="hero-sub" data-i18n="subtitle">Mis agentes de IA, trabajando</p>
     <p class="hero-meta">
       <span data-i18n="owner">Responsable: Yoandy Ramírez</span>
-      <span class="dot" aria-hidden="true"></span>
+      <span class="sep" aria-hidden="true">·</span>
       <span><span data-i18n="shift">Turno de noche · Huelva</span> <time id="clock"></time></span>
-      <span class="dot" aria-hidden="true"></span>
+      <span class="sep" aria-hidden="true">·</span>
       <span id="headcount"></span>
     </p>
   </section>
 
   <main class="layout">
-    <section class="office" aria-labelledby="office-h">
-      <h2 id="office-h" class="sr-only" data-i18n="officeH">La oficina</h2>
+    <section class="office" id="oficina" aria-labelledby="office-h">
+      <div class="office-head">
+        <h2 id="office-h" data-i18n="officeH">La oficina</h2>
+        <p class="sim-tag" data-i18n="simTag">Estados, encargos y rutinas: datos simulados (v1)</p>
+      </div>
+      <div class="legend" id="leyenda" role="group" aria-labelledby="legend-h">
+        <h3 id="legend-h" class="legend-h" data-i18n="legendH">Qué significa cada luz</h3>
+        <ul class="legend-list">
+          <li class="legend-item" data-state="working">
+            <span class="lamp" aria-hidden="true"><svg class="ico"><use href="#i-play"/></svg></span>
+            <span><strong data-i18n="st_working">Trabajando</strong> <span class="legend-sub" data-i18n="st_working_d">Verde. Está en ello, no hace falta nada.</span></span>
+          </li>
+          <li class="legend-item" data-state="needs_you">
+            <span class="lamp" aria-hidden="true"><svg class="ico"><use href="#i-alert"/></svg></span>
+            <span><strong data-i18n="st_needs_you">Te necesita</strong> <span class="legend-sub" data-i18n="st_needs_you_d">Rojo. Espera tu aprobación para algo irreversible.</span></span>
+          </li>
+          <li class="legend-item" data-state="review">
+            <span class="lamp" aria-hidden="true"><svg class="ico"><use href="#i-check"/></svg></span>
+            <span><strong data-i18n="st_review">Para revisar</strong> <span class="legend-sub" data-i18n="st_review_d">Amarillo. Ha terminado y espera tu revisión.</span></span>
+          </li>
+        </ul>
+      </div>
       <div class="floor" id="floor"></div>
-      <p class="hint" data-i18n="hint">Pulsa en un agente para ver su ficha.</p>
+      <p class="hint" data-i18n="hint">Pulsa en un agente para abrir su panel.</p>
     </section>
 
-    <aside class="activity" id="actividad" aria-labelledby="act-h">
-      <div class="activity-head">
-        <h2 id="act-h"><span class="live" aria-hidden="true"></span><span data-i18n="activity">Actividad</span></h2>
-        <button class="pill" id="playpause" type="button" aria-pressed="false">
-          <span class="pill-ico" aria-hidden="true"></span><span class="pill-txt" data-i18n="pause">Pausar</span>
-        </button>
-      </div>
-      <p class="activity-note" data-i18n="demo">Demo: la actividad es simulada</p>
-      <ol class="log" id="log" role="log" aria-live="polite" aria-relevant="additions"></ol>
-    </aside>
+    <div class="side">
+      <section class="panel tray" id="bandeja" aria-labelledby="tray-h">
+        <div class="panel-head">
+          <h2 id="tray-h"><svg class="ico" aria-hidden="true"><use href="#i-tray"/></svg><span data-i18n="trayH">Pendiente de tu revisión</span></h2>
+          <span class="count count--lg" id="tray-count"></span>
+        </div>
+        <ul class="tray-list" id="tray-list"></ul>
+      </section>
 
-    <section class="team" aria-labelledby="team-h">
+      <section class="panel routines" id="rutinas" aria-labelledby="rut-h">
+        <div class="panel-head">
+          <h2 id="rut-h"><svg class="ico" aria-hidden="true"><use href="#i-clock"/></svg><span data-i18n="routinesH">Rutinas programadas</span></h2>
+        </div>
+        <ul class="routine-list" id="routine-list"></ul>
+      </section>
+
+      <section class="panel activity" id="actividad" aria-labelledby="act-h">
+        <div class="panel-head">
+          <h2 id="act-h"><svg class="ico" aria-hidden="true"><use href="#i-list"/></svg><span data-i18n="activity">Actividad</span></h2>
+          <button class="pill" id="playpause" type="button" aria-pressed="false">
+            <span class="pill-ico" aria-hidden="true"></span><span class="pill-txt" data-i18n="pause">Pausar</span>
+          </button>
+        </div>
+        <p class="panel-note" data-i18n="demo">Conversaciones: registro real del bot de Grok. Encargos: simulados.</p>
+        <ol class="log" id="log" role="log" aria-live="polite" aria-relevant="additions"></ol>
+      </section>
+    </div>
+
+    <section class="team" id="equipo" aria-labelledby="team-h">
       <h2 id="team-h" data-i18n="team">El equipo</h2>
-      <p class="team-hint" data-i18n="teamHint">Todos los agentes y su función, en texto.</p>
+      <p class="team-hint" data-i18n="teamHint">Todos los agentes, su estado y su función, en texto.</p>
       <div class="team-grid" id="team"></div>
     </section>
   </main>
 
   <footer class="footer">
-    <p class="demo-note"><span class="badge" data-i18n="demoBadge">DEMO</span> <span data-i18n="demo">Demo: la actividad es simulada</span></p>
     <p class="footer-meta"><span data-i18n="made">Una oficina de Yoandy Ramírez, dibujada píxel a píxel.</span>
       <a href="https://github.com/heindall92/mi-departamento" data-i18n="repo">Código en GitHub</a></p>
   </footer>
@@ -82,30 +128,51 @@
     <span class="ticker-text" id="ticker-text"></span>
   </a>
 
-  <div class="fx" id="fx" aria-hidden="true"></div>
+  <nav class="bottombar" data-i18n-aria="navAria" aria-label="Secciones">
+    <a href="#oficina"><svg class="ico" aria-hidden="true"><use href="#i-office"/></svg><span data-i18n="navOffice">Oficina</span></a>
+    <a href="#bandeja"><span class="ico-wrap"><svg class="ico" aria-hidden="true"><use href="#i-tray"/></svg><span class="count" id="nav-count" hidden></span></span><span data-i18n="navTray">Bandeja</span></a>
+    <a href="#rutinas"><svg class="ico" aria-hidden="true"><use href="#i-clock"/></svg><span data-i18n="navRoutines">Rutinas</span></a>
+    <a href="#actividad"><svg class="ico" aria-hidden="true"><use href="#i-list"/></svg><span data-i18n="navActivity">Actividad</span></a>
+    <a href="#equipo"><svg class="ico" aria-hidden="true"><use href="#i-team"/></svg><span data-i18n="navTeam">Equipo</span></a>
+  </nav>
 
-  <dialog class="card" id="card" aria-labelledby="card-name">
+  <div class="fx" id="fx" aria-hidden="true"></div>
+  <div class="walkers" id="walkers" aria-hidden="true"></div>
+  <p class="sr-only" id="announce" aria-live="polite"></p>
+
+  <dialog class="card" id="card" aria-labelledby="card-name" aria-describedby="card-role">
     <div class="card-inner">
-      <button class="card-close" type="button" id="card-close" data-i18n-aria="close" aria-label="Cerrar"><span aria-hidden="true">×</span></button>
+      <span class="card-grab" aria-hidden="true"></span>
+      <button class="card-close" type="button" id="card-close" data-i18n-aria="closePanel" aria-label="Cerrar el panel"><svg class="ico" aria-hidden="true"><use href="#i-close"/></svg></button>
       <div class="card-top">
         <canvas class="card-sprite" id="card-sprite" width="16" height="18" aria-hidden="true"></canvas>
         <div>
           <p class="card-room" id="card-room"></p>
-          <h3 class="card-name" id="card-name"></h3>
+          <h2 class="card-name" id="card-name"></h2>
           <p class="card-role" id="card-role"></p>
         </div>
       </div>
-      <p class="card-status"><span data-i18n="status">Estado</span>: <span class="chip" id="card-status"></span></p>
-      <h4 data-i18n="whatDoes">Qué hace</h4>
-      <ul class="card-does" id="card-does"></ul>
-      <div class="card-last" id="card-last" hidden>
-        <h4 data-i18n="lastMsg">Último mensaje</h4>
+      <p class="card-status"><span class="sr-only" data-i18n="status">Estado</span> <span class="state" id="card-state"></span></p>
+      <dl class="card-facts">
+        <div><dt data-i18n="task">Ahora</dt><dd id="card-task"></dd></div>
+        <div><dt data-i18n="lastTask">Última tarea</dt><dd id="card-lasttask"></dd></div>
+      </dl>
+      <section class="card-sec" aria-labelledby="card-pend-h">
+        <h3 id="card-pend-h" data-i18n="pendingH">Pendiente de ti</h3>
+        <ul class="card-pending" id="card-pending"></ul>
+      </section>
+      <section class="card-sec" aria-labelledby="card-does-h">
+        <h3 id="card-does-h" data-i18n="whatDoes">Qué hace</h3>
+        <ul class="card-does" id="card-does"></ul>
+      </section>
+      <section class="card-sec card-last" id="card-last" aria-labelledby="card-last-h" hidden>
+        <h3 id="card-last-h" data-i18n="lastMsg">Último mensaje</h3>
         <p id="card-last-text"></p>
-      </div>
+      </section>
     </div>
   </dialog>
 
-  <noscript><p class="noscript">Esta oficina necesita JavaScript para dibujarse. / This office needs JavaScript to render.</p></noscript>
+  <noscript><p class="noscript">Esta oficina necesita JavaScript para dibujarse.</p></noscript>
   <script src="js/app.js" defer></script>
 </body>
 </html>
