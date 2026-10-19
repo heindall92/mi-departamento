@@ -9,6 +9,9 @@ cp index.html favicon.svg 404.html _headers dist/
 cp -r css js data dist/
 python3 -m json.tool dist/data/office.json >/dev/null
 python3 -m json.tool dist/data/feed.json >/dev/null
+python3 -m json.tool dist/data/activity.json >/dev/null
+python3 -m json.tool dist/data/activity.schema.json >/dev/null
+python3 scripts/check-activity.py dist/data/activity.json dist/data/office.json
 test -s dist/index.html
 test -s dist/css/styles.css
 test -s dist/js/app.js

@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/heindall92/mi-departamento/data/activity.schema.json",
+  "title": "Mi Departamento · actividad de la oficina",
+  "description": "Estado de cada bot, bandeja de revisión, encargos entre bots y rutinas programadas. v1 se rellena con datos simulados; v2 lo generará la actividad real. Cambios incompatibles suben la versión mayor.",
+  "type": "object",
+  "required": ["schemaVersion", "source", "generatedAt", "agents", "reviewQueue", "handoffs", "routines"],
+  "additionalProperties": false,
+  "$defs": {
+    "agentId": {
+      "type": "string",
+      "enum": ["grok", "tool", "remotion", "finanzas", "ventas", "linkedin", "instagram", "iso", "grc", "engranaje", "emprendedor", "binarios"],
+      "description": "id del agente en data/office.json"
+    },
+    "text": { "type": "string", "minLength": 1, "maxLength": 160 }
+  },
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "type": "string", "pattern": "^1\\.\\d+\\.\\d+$", "description": "SemVer. La web acepta cualquier 1.x.y." },
+    "source": { "type": "string", "enum": ["simulated", "live"], "description": "simulated: datos de ejemplo (la web lo indica). live: actividad real." },
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "agents": {
+      "type": "object",
+      "description": "Estado actual por agente. Un agente sin entrada se muestra como 'working'.",
+      "propertyNames": { "$ref": "#/$defs/agentId" },
+      "additionalProperties": {
+        "type": "object",
+        "required": ["state"],
+        "additionalProperties": false,
+        "properties": {
+          "state": { "type": "string", "enum": ["working", "needs_you", "review"], "description": "working = verde (trabajando); needs_you = rojo (necesita tu aprobación para algo irreversible); review = amarillo (terminado, espera tu revisión)" },
+          "task": { "$ref": "#/$defs/text" }
+        }
+      }
+    },
+    "reviewQueue": {
+      "type": "array",
+      "description": "Bandeja 'Pendiente de tu revisión'. Orden libre: la web pone primero las aprobaciones y luego lo más antiguo.",
+      "items": {
+        "type": "object",
+        "required": ["id", "agent", "kind", "title", "since"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "agent": { "$ref": "#/$defs/agentId" },
+          "kind": { "type": "string", "enum": ["approval", "review"], "description": "approval = acción irreversible que espera tu sí; review = trabajo terminado para revisar" },
+          "title": { "$ref": "#/$defs/text" },
+          "detail": { "type": "string", "maxLength": 280 },
+          "since": { "type": "string", "format": "date-time" }
+        }
+      }
+    },
+    "handoffs": {
+      "type": "array",
+      "description": "Encargos de un bot a otro. Con source=simulated se reproducen en bucle; con live, cada entrada es un encargo real (añade 'at').",
+      "items": {
+        "type": "object",
+        "required": ["id", "from", "to", "task"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "from": { "$ref": "#/$defs/agentId" },
+          "to": { "$ref": "#/$defs/agentId" },
+          "task": { "$ref": "#/$defs/text" },
+          "at": { "type": "string", "format": "date-time" }
+        }
+      }
+    },
+    "routines": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "agent", "name", "schedule", "animation"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "agent": { "$ref": "#/$defs/agentId" },
+          "name": { "$ref": "#/$defs/text" },
+          "schedule": {
+            "type": "object",
+            "required": ["cron", "label"],
+            "additionalProperties": false,
+            "properties": {
+              "cron": { "type": "string", "description": "Cron de 5 campos, hora de Europe/Madrid" },
+              "label": { "$ref": "#/$defs/text" }
+            }
+          },
+          "animation": { "type": "string", "enum": ["sunrise", "coins", "bell", "hearts", "radar", "scan", "gear"] },
+          "lastRun": { "type": "string", "format": "date-time" }
+        }
+      }
+    },
+    "simulation": {
+      "type": "object",
+      "description": "Solo para source=simulated: cada cuánto se reproduce un encargo o una rutina.",
+      "additionalProperties": false,
+      "properties": {
+        "handoffEverySec": { "type": "number", "minimum": 3 },
+        "routineEverySec": { "type": "number", "minimum": 3 }
+      }
+    }
+  }
+}

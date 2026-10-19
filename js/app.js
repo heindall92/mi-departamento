@@ -13,13 +13,29 @@
       shift: 'Turno de noche · Huelva',
       officeH: 'La oficina',
       hint: 'Pulsa en un agente para ver su ficha.',
+      simTag: 'Estados, encargos y rutinas: datos simulados (v1)',
+      legendH: 'Qué significa cada luz',
+      st_working: 'Trabajando', st_working_d: 'Verde. Está en ello, no hace falta nada.',
+      st_needs_you: 'Te necesita', st_needs_you_d: 'Rojo. Espera tu aprobación para algo irreversible.',
+      st_review: 'Para revisar', st_review_d: 'Amarillo. Ha terminado y espera tu revisión.',
+      trayH: 'Pendiente de tu revisión',
+      trayEmpty: 'Nada pendiente. Todo en marcha.',
+      trayCount: '{x} pendientes',
+      kind_approval: 'Necesita tu aprobación', kind_review: 'Terminado, para revisar',
+      since: 'desde', seeCard: 'Ver ficha',
+      routinesH: 'Rutinas programadas',
+      routineNever: 'Aún no ha sonado', routineLast: 'Última {x}', routineNow: 'En marcha',
+      routineFire: 'Rutina: {x}',
+      errand: 'Encargo', errandTo: 'para {x}', received: 'Recibido: {x}',
+      navAria: 'Secciones', navOffice: 'Oficina', navTray: 'Bandeja', navRoutines: 'Rutinas', navActivity: 'Actividad', navTeam: 'Equipo',
+      task: 'Ahora',
       activity: 'Actividad',
       pause: 'Pausar', play: 'Reanudar',
       pauseAria: 'Pausar la actividad', playAria: 'Reanudar la actividad',
-      demo: 'Registro real del bot de Grok en este repositorio',
+      demo: 'Conversaciones: registro real del bot de Grok. Encargos: simulados.',
       demoBadge: 'REAL',
       team: 'El equipo',
-      teamHint: 'Todos los agentes y su función, en texto.',
+      teamHint: 'Todos los agentes, su estado y su función, en texto.',
       made: 'Una oficina de Yoandy Ramírez, dibujada píxel a píxel.',
       repo: 'Código en GitHub',
       you: 'Tú', youAria: 'Tú (Yoandy Ramírez)',
@@ -36,7 +52,7 @@
       agents: 'agentes', rooms: 'salas',
       agentOne: 'agente', agentMany: 'agentes',
       newRound: '· nueva ronda ·',
-      skip: 'Saltar a la actividad',
+      skip: 'Saltar a tu bandeja',
       cafe: 'Café',
       cafeAria: 'Café: zona de descanso, sin agentes',
       loadError: 'No se pudieron cargar los datos de la oficina.',
@@ -50,13 +66,29 @@
       shift: 'Night shift · Huelva',
       officeH: 'The office',
       hint: 'Tap an agent to see their card.',
+      simTag: 'States, errands and routines: simulated data (v1)',
+      legendH: 'What each light means',
+      st_working: 'Working', st_working_d: 'Green. On it, nothing needed.',
+      st_needs_you: 'Needs you', st_needs_you_d: 'Red. Waiting for your approval on something irreversible.',
+      st_review: 'To review', st_review_d: 'Yellow. Finished and waiting for your review.',
+      trayH: 'Waiting for your review',
+      trayEmpty: 'Nothing pending. All running.',
+      trayCount: '{x} pending',
+      kind_approval: 'Needs your approval', kind_review: 'Done, to review',
+      since: 'since', seeCard: 'Open card',
+      routinesH: 'Scheduled routines',
+      routineNever: 'Not run yet', routineLast: 'Last {x}', routineNow: 'Running',
+      routineFire: 'Routine: {x}',
+      errand: 'Errand', errandTo: 'to {x}', received: 'Received: {x}',
+      navAria: 'Sections', navOffice: 'Office', navTray: 'Tray', navRoutines: 'Routines', navActivity: 'Activity', navTeam: 'Team',
+      task: 'Now',
       activity: 'Activity',
       pause: 'Pause', play: 'Resume',
       pauseAria: 'Pause the activity', playAria: 'Resume the activity',
-      demo: 'Real log of the Grok bot on this repository',
+      demo: 'Conversations: real log of the Grok bot. Errands: simulated.',
       demoBadge: 'REAL',
       team: 'The team',
-      teamHint: 'Every agent and what they do, as text.',
+      teamHint: 'Every agent, their state and what they do, as text.',
       made: 'An office by Yoandy Ramírez, drawn pixel by pixel.',
       repo: 'Code on GitHub',
       you: 'You', youAria: 'You (Yoandy Ramírez)',
@@ -73,7 +105,7 @@
       agents: 'agents', rooms: 'rooms',
       agentOne: 'agent', agentMany: 'agents',
       newRound: '· new round ·',
-      skip: 'Skip to activity',
+      skip: 'Skip to your tray',
       cafe: 'Café',
       cafeAria: 'Café: break room, no agents',
       loadError: 'Could not load the office data.',
@@ -101,8 +133,29 @@
     office: null, feed: null,
     agents: new Map(), rooms: [],
     frame: 0, tickId: 0, playing: true,
-    log: [], lastBy: new Map(), cardId: null
+    log: [], lastBy: new Map(), cardId: null,
+    activity: null, roomFx: new Map(), routineLast: new Map()
   };
+  /* Estados de mesa: color + icono + texto (nunca solo color). */
+  const STATES = {
+    working: { icon: 'play', key: 'st_working', lamp: '#3ccf6e' },
+    needs_you: { icon: 'alert', key: 'st_needs_you', lamp: '#ff4b42' },
+    review: { icon: 'check', key: 'st_review', lamp: '#ffc53d' }
+  };
+  function actAgent(id) { const a = state.activity && state.activity.agents; return (a && a[id]) || null; }
+  function stateOf(id) { const a = actAgent(id); return a && STATES[a.state] ? a.state : 'working'; }
+  function taskOf(id) { const a = actAgent(id); return (a && a.task) || ''; }
+  function icon(name) {
+    const ns = 'http://www.w3.org/2000/svg';
+    const sv = document.createElementNS(ns, 'svg'); sv.setAttribute('class', 'ico'); sv.setAttribute('aria-hidden', 'true');
+    const u = document.createElementNS(ns, 'use'); u.setAttribute('href', '#i-' + name); sv.appendChild(u);
+    return sv;
+  }
+  function stateChip(el, st) {
+    el.className = 'state'; el.dataset.state = st; el.textContent = '';
+    el.append(icon(STATES[st].icon), document.createTextNode(t(STATES[st].key)));
+    return el;
+  }
   const ROOM_ACCENT = {
     direccion: '#14b8a6', estrategia: '#d99a2b', finanzas: '#3f9a66', ventas: '#d0573f',
     marketing: '#c2477a', ciber: '#4a7ab8', laboratorio: '#3ddc84', herramientas: '#c96a22', cafe: '#a07850'
@@ -518,6 +571,69 @@
     drawDecor(c, r.id, W, f);
     r.slots.forEach((s) => alpha(c, 0.09, () => { px(c, s.cx - 20, 44, 40, 32, '#f4b860'); px(c, s.cx - 13, 46, 26, 28, '#f4b860'); }));
     r.slots.forEach((s) => drawStation(c, s, state.frame));
+    const fx = state.roomFx.get(r.id);
+    if (fx) { const slot = r.slots.find((s) => s.id === fx.agent); if (slot) drawRoutineFx(c, fx, slot.cx, W); }
+  }
+
+  /* Animación propia de cada rutina, dibujada en el lienzo de su sala. */
+  function drawRoutineFx(c, fx, cx, W) {
+    const el = performance.now() - fx.start;
+    const p = reduced ? 0.55 : Math.min(1, el / fx.dur);
+    const q = reduced ? 1 : Math.floor(el / 130) % 2;
+    const gold = '#ffc53d', ink = '#1b1f3a';
+    switch (fx.anim) {
+      case 'sunrise': {
+        const y = Math.round(40 - p * 24);
+        alpha(c, 0.3, () => px(c, cx - 9, y - 6, 18, 14, gold));
+        px(c, cx - 3, y - 3, 6, 6, gold); px(c, cx - 4, y - 2, 8, 4, gold); px(c, cx - 2, y - 4, 4, 8, gold);
+        if (q) { px(c, cx - 1, y - 8, 2, 2, gold); px(c, cx - 1, y + 6, 2, 2, gold); px(c, cx - 8, y - 1, 2, 2, gold); px(c, cx + 6, y - 1, 2, 2, gold); }
+        else { px(c, cx - 6, y - 6, 2, 2, gold); px(c, cx + 4, y - 6, 2, 2, gold); px(c, cx - 6, y + 4, 2, 2, gold); px(c, cx + 4, y + 4, 2, 2, gold); }
+        break;
+      }
+      case 'coins':
+        for (let k = 0; k < 4; k++) {
+          const pk = Math.max(0, Math.min(1, p * 1.6 - k * 0.18));
+          const y = Math.round(8 + pk * 44), x = cx - 9 + k * 5;
+          px(c, x, y, 4, 4, gold); px(c, x + 1, y + 1, 2, 2, '#c98a00'); px(c, x, y, 4, 1, '#ffe08a');
+        }
+        break;
+      case 'bell': {
+        const sw = reduced ? 0 : (q ? -2 : 2), y = 14;
+        px(c, cx - 1 + sw, y - 2, 2, 2, ink);
+        px(c, cx - 3 + sw, y, 6, 2, gold); px(c, cx - 4 + sw, y + 2, 8, 4, gold); px(c, cx - 5 + sw, y + 6, 10, 2, gold);
+        px(c, cx - 1 + sw, y + 8, 2, 2, ink);
+        if (q || reduced) { px(c, cx - 9, y + 1, 2, 1, ink); px(c, cx - 10, y + 4, 2, 1, ink); px(c, cx + 7, y + 1, 2, 1, ink); px(c, cx + 8, y + 4, 2, 1, ink); }
+        break;
+      }
+      case 'hearts':
+        for (let k = 0; k < 3; k++) {
+          const pk = Math.max(0, Math.min(1, p * 1.5 - k * 0.2));
+          const y = Math.round(36 - pk * 30), x = cx - 8 + k * 6 + (q && k % 2 ? 1 : 0);
+          const col = '#ff4b42';
+          alpha(c, 1 - pk * 0.6, () => { px(c, x, y, 2, 2, col); px(c, x + 3, y, 2, 2, col); px(c, x, y + 1, 5, 2, col); px(c, x + 1, y + 3, 3, 1, col); px(c, x + 2, y + 4, 1, 1, col); });
+        }
+        break;
+      case 'radar': {
+        const rr = 4 + Math.round(p * 14) % 15, cy = 30;
+        const col = '#3ccf6e';
+        [rr, Math.max(2, rr - 7)].forEach((R, i) => alpha(c, i ? 0.5 : 0.9, () => {
+          px(c, cx - R, cy - R, R * 2, 1, col); px(c, cx - R, cy + R, R * 2, 1, col);
+          px(c, cx - R, cy - R, 1, R * 2, col); px(c, cx + R, cy - R, 1, R * 2 + 1, col);
+        }));
+        px(c, cx - 1, cy - 1, 2, 2, col);
+        break;
+      }
+      case 'scan': {
+        const y = Math.round(4 + p * 50);
+        alpha(c, 0.35, () => px(c, 0, y - 3, W, 3, '#3ccf6e'));
+        px(c, 0, y, W, 1, '#a7f3c9');
+        break;
+      }
+      case 'gear':
+        alpha(c, 0.9, () => px(c, cx - 8, 13, 17, 17, ink));
+        gear(c, cx, 21, q, gold, ink);
+        break;
+    }
   }
 
   function drawStation(c, s, frameN) {
@@ -545,8 +661,14 @@
     // mug + steam
     px(c, cx + 9, DESK_Y - 3, 3, 3, '#e8e2d0'); px(c, cx + 12, DESK_Y - 2, 1, 1, '#e8e2d0');
     if (!reduced) alpha(c, 0.5, () => px(c, cx + 10, DESK_Y - 5 - f, 1, 1, '#ffffff'));
-    // papers
-    px(c, cx - 14, DESK_Y - 1, 6, 1, '#efe6d2'); px(c, cx - 13, DESK_Y - 2, 5, 1, '#d9d2c0');
+    // lámpara de estado (el icono va en la placa DOM .desk-lamp)
+    const st = stateOf(s.id), lampCol = STATES[st].lamp;
+    const glowOn = st !== 'needs_you' || reduced || f;
+    if (glowOn) alpha(c, 0.28, () => { px(c, cx - 18, DESK_Y - 12, 11, 9, lampCol); px(c, cx - 17, DESK_Y - 3, 9, 3, lampCol); });
+    px(c, cx - 15, DESK_Y - 1, 5, 1, '#2b2536');
+    px(c, cx - 13, DESK_Y - 6, 1, 5, '#2b2536');
+    px(c, cx - 16, DESK_Y - 9, 7, 3, '#2b2536');
+    px(c, cx - 15, DESK_Y - 8, 5, 2, glowOn ? lampCol : shade(lampCol, -0.35));
     // hands
     const hand = look.kind === 'robot' ? (look.metal || '#b9c2cc') : (look.skin || '#e0b088');
     const lh = typing && !reduced ? (f ? -1 : 0) : 0, rh = typing && !reduced ? (f ? 0 : -1) : 0;
@@ -573,6 +695,8 @@
       ag.hit.style.height = (40 / H * 100) + '%';
       ag.bubble.style.left = (cx / W * 100) + '%';
       ag.bubble.style.bottom = (100 - (36 / H * 100)) + '%';
+      ag.lamp.style.left = ((cx - 12.5) / W * 100) + '%';
+      ag.lamp.style.top = ((DESK_Y - 10) / H * 100) + '%';
     });
   }
   function sizeRoom(r) {
@@ -621,6 +745,8 @@
     canvas.style.aspectRatio = `${W} / ${H}`;
     stage.appendChild(canvas);
     el.append(head, stage);
+    const fire = document.createElement('span'); fire.className = 'room-fire'; fire.setAttribute('aria-hidden', 'true');
+    stage.appendChild(fire);
     if (extra) {
       el.setAttribute('role', 'img');
       canvas.setAttribute('aria-hidden', 'true');
@@ -628,7 +754,7 @@
       el.setAttribute('aria-labelledby', h.id);
       canvas.setAttribute('aria-hidden', 'true');
     }
-    const r = { id: room.id, room, W: 0, el, canvas, ctx: canvas.getContext('2d'), scale: 3, slots: [], h, count, extra };
+    const r = { id: room.id, room, W: 0, el, canvas, ctx: canvas.getContext('2d'), scale: 3, slots: [], h, count, extra, fire };
     if (n) {
       const labels = document.createElement('div'); labels.className = 'labels';
       labels.style.gridTemplateColumns = `repeat(${n}, minmax(0, 1fr))`;
@@ -643,13 +769,14 @@
         bubble.className = 'bubble'; bubble.setAttribute('aria-hidden', 'true');
         if (n > 1 && i === 0) { bubble.style.setProperty('--bx', '-22%'); bubble.style.setProperty('--tail', '22%'); }
         if (n > 1 && i === n - 1) { bubble.style.setProperty('--bx', '-78%'); bubble.style.setProperty('--tail', '78%'); }
-        stage.append(hit, bubble);
+        const lamp = document.createElement('span'); lamp.className = 'lamp desk-lamp'; lamp.setAttribute('aria-hidden', 'true');
+        stage.append(hit, bubble, lamp);
         const label = document.createElement('div'); label.className = 'label';
         const nm = document.createElement('span'); nm.className = 'label-name'; nm.textContent = a.short || a.name; nm.title = a.name;
-        const chip = document.createElement('span'); chip.className = 'chip';
+        const chip = document.createElement('span'); chip.className = 'state';
         label.append(nm, chip);
         labels.appendChild(label);
-        state.agents.set(a.id, { a, room, hit, chip, bubble, override: null, timer: 0, bTimer: 0, seed: hashStr(a.id) % 11 });
+        state.agents.set(a.id, { a, room, hit, chip, bubble, lamp, override: null, timer: 0, bTimer: 0, seed: hashStr(a.id) % 11 });
       });
       el.appendChild(labels);
     }
@@ -668,8 +795,10 @@
         const b = document.createElement('button'); b.type = 'button'; b.className = 'agent-link';
         b.textContent = a.name; b.setAttribute('aria-label', `${t('openCard')} ${a.name}`);
         b.addEventListener('click', () => openCard(a.id, b));
-        const role = document.createElement('span'); role.className = 'agent-role'; role.textContent = L(a.role);
-        li.append(b, role); ul.appendChild(li);
+        const line = document.createElement('div'); line.className = 'agent-line';
+        line.append(b, stateChip(document.createElement('span'), stateOf(a.id)));
+        const role = document.createElement('span'); role.className = 'agent-role'; role.textContent = taskOf(a.id) || L(a.role);
+        li.append(line, role); ul.appendChild(li);
       });
       box.append(h, ul); wrap.appendChild(box);
     });
@@ -681,9 +810,11 @@
     return L(ag.a.status);
   }
   function renderAgent(ag) {
-    ag.chip.textContent = statusText(ag);
-    ag.chip.className = 'chip' + (ag.override && ag.override.kind ? ' ' + ag.override.kind : '');
-    ag.hit.setAttribute('aria-label', `${ag.a.name}, ${L(ag.a.role)}. ${t('status')}: ${statusText(ag)}. ${t('openCardShort')}`);
+    const st = stateOf(ag.a.id);
+    stateChip(ag.chip, st);
+    ag.lamp.dataset.state = st; ag.lamp.textContent = ''; ag.lamp.appendChild(icon(STATES[st].icon));
+    const task = taskOf(ag.a.id);
+    ag.hit.setAttribute('aria-label', `${ag.a.name}. ${t('status')}: ${t(STATES[st].key)}${task ? '. ' + task : ''}. ${t('openCardShort')}`);
   }
   function setStatus(id, text, kind, ms, typing) {
     const ag = state.agents.get(id); if (!ag) return;
@@ -754,12 +885,22 @@
   function renderLogItem(item, isNew) {
     const li = document.createElement('li');
     if (item.sep) { li.className = 'log-sep'; li.textContent = t('newRound'); return li; }
+    if (item.h) {
+      li.className = 'msg' + (isNew && !reduced ? ' new' : '');
+      const head = document.createElement('div'); head.className = 'msg-head';
+      const tag = document.createElement('span'); tag.className = 'msg-tag'; tag.textContent = t('errand');
+      const who = document.createElement('span'); who.textContent = `${nameOf(item.h.from)} → ${nameOf(item.h.to)}`;
+      const tm = document.createElement('time'); tm.dateTime = item.at.toISOString(); tm.textContent = timeStr(item.at);
+      head.append(icon('mail'), tag, who, tm);
+      const p = document.createElement('p'); p.className = 'msg-text'; p.textContent = item.h.task;
+      li.append(head, p);
+      return li;
+    }
     const m = item.m;
     li.className = 'msg' + (isNew && !reduced ? ' new' : '') + (m.from === 'tu' || m.to === 'tu' ? ' msg--you' : '');
-    li.style.setProperty('--c', colorOf(m.from));
     const head = document.createElement('div'); head.className = 'msg-head';
     const from = document.createElement('span'); from.textContent = nameOf(m.from);
-    const arrow = document.createElement('span'); arrow.className = 'arrow'; arrow.textContent = '→';
+    const arrow = document.createElement('span'); arrow.textContent = '→';
     arrow.setAttribute('aria-label', t('to'));
     const to = document.createElement('span'); to.textContent = nameOf(m.to);
     const tm = document.createElement('time'); tm.dateTime = item.at.toISOString(); tm.textContent = timeStr(item.at);
@@ -786,7 +927,7 @@
   function renderTicker() {
     const tk = $('#ticker'); if (!tickerMsg) return;
     $('#ticker-who').textContent = `${nameOf(tickerMsg.from)} → ${nameOf(tickerMsg.to)}`;
-    $('#ticker-text').textContent = L(tickerMsg.text);
+    $('#ticker-text').textContent = typeof tickerMsg.text === 'string' ? tickerMsg.text : L(tickerMsg.text);
     tk.classList.add('show');
   }
   function playMsg(m) {
@@ -828,13 +969,165 @@
         playMsg(m);
         await sleepPlaying(m.delayMs || def);
       }
-      if (state.feed.loop === false) {
-        state.playing = false;
-        renderPlayPause();
-        return;
-      }
+      if (state.feed.loop === false) return;
       await sleepPlaying(state.feed.loopPauseMs || 6000);
       pushLog({ sep: true });
+    }
+  }
+
+  /* --------------------------------------------- bandeja de revisión */
+  function dayTime(iso) {
+    const d = new Date(iso); if (isNaN(d)) return '';
+    const today = new Date().toDateString() === d.toDateString();
+    try {
+      const o = today ? { hour: '2-digit', minute: '2-digit' } : { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' };
+      return new Intl.DateTimeFormat(lang === 'es' ? 'es-ES' : 'en-GB', { ...o, timeZone: 'Europe/Madrid' }).format(d);
+    } catch (e) { return d.toISOString().slice(0, 16).replace('T', ' '); }
+  }
+  function renderTray() {
+    const list = $('#tray-list'); list.textContent = '';
+    const q = ((state.activity && state.activity.reviewQueue) || []).filter((it) => state.agents.has(it.agent)).slice()
+      .sort((a, b) => (a.kind === b.kind ? 0 : a.kind === 'approval' ? -1 : 1) || (new Date(a.since) - new Date(b.since)));
+    const n = q.length;
+    const cnt = $('#tray-count'); cnt.textContent = String(n); cnt.setAttribute('aria-label', fmt(t('trayCount'), n)); cnt.hidden = !n;
+    ['#you-count', '#nav-count'].forEach((sel) => { const el = $(sel); el.textContent = String(n); el.hidden = !n; });
+    $('#you').setAttribute('aria-label', `${t('youAria')}. ${fmt(t('trayCount'), n)}`);
+    if (!n) { const p = document.createElement('li'); p.className = 'empty'; p.textContent = t('trayEmpty'); list.appendChild(p); return; }
+    q.forEach((it) => {
+      const st = it.kind === 'approval' ? 'needs_you' : 'review';
+      const li = document.createElement('li'); li.className = 'tray-item'; li.dataset.state = st;
+      const lamp = document.createElement('span'); lamp.className = 'lamp'; lamp.appendChild(icon(STATES[st].icon));
+      const body = document.createElement('div');
+      const kind = document.createElement('p'); kind.className = 'tray-kind'; kind.textContent = t('kind_' + it.kind);
+      const title = document.createElement('p'); title.className = 'tray-title'; title.textContent = it.title;
+      body.append(kind, title);
+      if (it.detail) { const d = document.createElement('p'); d.className = 'tray-detail'; d.textContent = it.detail; body.appendChild(d); }
+      const meta = document.createElement('p'); meta.className = 'tray-meta';
+      const who = document.createElement('span'); who.textContent = nameOf(it.agent);
+      const tm = document.createElement('time'); tm.dateTime = it.since; tm.textContent = `${t('since')} ${dayTime(it.since)}`;
+      const btn = document.createElement('button'); btn.type = 'button'; btn.className = 'link-btn'; btn.textContent = t('seeCard');
+      btn.setAttribute('aria-label', `${t('seeCard')}: ${nameOf(it.agent)}`);
+      btn.addEventListener('click', () => openCard(it.agent, btn));
+      meta.append(who, document.createTextNode('·'), tm, btn);
+      body.appendChild(meta);
+      li.append(lamp, body); list.appendChild(li);
+    });
+  }
+
+  /* --------------------------------------------------------- rutinas */
+  function renderRoutines() {
+    const list = $('#routine-list'); list.textContent = '';
+    ((state.activity && state.activity.routines) || []).filter((r) => state.agents.has(r.agent)).forEach((r) => {
+      const li = document.createElement('li'); li.className = 'routine'; li.dataset.routine = r.id;
+      const ic = icon('clock'); ic.classList.add('routine-ico');
+      const body = document.createElement('div');
+      const nm = document.createElement('p'); nm.className = 'routine-name'; nm.textContent = r.name;
+      const sub = document.createElement('p'); sub.className = 'routine-sub'; sub.textContent = `${nameOf(r.agent)} · ${r.schedule.label}`;
+      body.append(nm, sub);
+      const last = document.createElement('span'); last.className = 'routine-last';
+      li.append(ic, body, last); list.appendChild(li);
+      renderRoutineLast(r.id);
+    });
+  }
+  function renderRoutineLast(id) {
+    const li = $(`.routine[data-routine="${id}"]`); if (!li) return;
+    const last = $('.routine-last', li);
+    if (li.classList.contains('firing')) { last.textContent = t('routineNow'); return; }
+    const at = state.routineLast.get(id);
+    last.textContent = at ? fmt(t('routineLast'), timeStr(at)) : t('routineNever');
+  }
+  let fxRaf = 0, fxLastDraw = 0;
+  function fxLoop(ts) {
+    fxRaf = 0;
+    if (!state.roomFx.size) return;
+    if (ts - fxLastDraw > 90) { fxLastDraw = ts; state.rooms.forEach((r) => { if (state.roomFx.has(r.id)) drawRoom(r); }); }
+    fxRaf = requestAnimationFrame(fxLoop);
+  }
+  function fireRoutine(r) {
+    const ag = state.agents.get(r.agent); if (!ag) return;
+    const room = state.rooms.find((x) => x.room === ag.room); if (!room) return;
+    const dur = 2600;
+    state.roomFx.set(room.id, { anim: r.animation, agent: r.agent, start: performance.now(), dur });
+    room.fire.textContent = ''; room.fire.append(icon('clock'), document.createTextNode(fmt(t('routineFire'), r.name)));
+    room.fire.classList.add('show');
+    const li = $(`.routine[data-routine="${r.id}"]`); if (li) li.classList.add('firing');
+    renderRoutineLast(r.id);
+    if (reduced) drawRoom(room); else if (!fxRaf) fxRaf = requestAnimationFrame(fxLoop);
+    setTimeout(() => {
+      state.roomFx.delete(room.id); drawRoom(room);
+      room.fire.classList.remove('show');
+      state.routineLast.set(r.id, new Date());
+      if (li) li.classList.remove('firing');
+      renderRoutineLast(r.id);
+    }, dur);
+  }
+
+  /* --------------------------------------------- encargos a mano */
+  function drawWalker(c, look, f) {
+    const ox = 1, oy = 1;
+    drawCharacter(c, look, ox, oy, false, 1);
+    const pants = '#2b2f4a', shoe = '#14172b';
+    if (f) { px(c, ox + 2, oy + 19, 3, 3, pants); px(c, ox + 7, oy + 19, 3, 2, pants); px(c, ox + 1, oy + 22, 4, 1, shoe); px(c, ox + 7, oy + 21, 4, 1, shoe); }
+    else { px(c, ox + 3, oy + 19, 2, 3, pants); px(c, ox + 7, oy + 19, 2, 3, pants); px(c, ox + 3, oy + 22, 3, 1, shoe); px(c, ox + 7, oy + 22, 3, 1, shoe); }
+    // sobre en las manos
+    const ex = ox + 5, ey = oy + 12;
+    px(c, ex, ey, 8, 6, '#1b1f3a'); px(c, ex + 1, ey + 1, 6, 4, '#fff3d6');
+    px(c, ex + 1, ey + 1, 1, 1, '#d9c9a3'); px(c, ex + 6, ey + 1, 1, 1, '#d9c9a3'); px(c, ex + 2, ey + 2, 4, 1, '#d9c9a3');
+    px(c, ex + 3, ey + 3, 2, 1, '#b3261e');
+    const hand = look.kind === 'robot' ? (look.metal || '#b9c2cc') : (look.skin || '#e0b088');
+    px(c, ex - 1, ey + 2, 2, 2, hand); px(c, ex + 7, ey + 2, 2, 2, hand);
+  }
+  function walkErrand(h, done) {
+    const from = state.agents.get(h.from), to = state.agents.get(h.to);
+    if (!from || !to || reduced || !Element.prototype.animate) { done(); return; }
+    const room = state.rooms.find((x) => x.room === from.room);
+    const unit = Math.max(2, (room.canvas.clientWidth || room.W * 3) / room.W);
+    const SW = 15, SH = 25, w = SW * unit, hgt = SH * unit;
+    const a = from.hit.getBoundingClientRect(), b = to.hit.getBoundingClientRect();
+    const sx = window.scrollX, sy = window.scrollY;
+    const x0 = a.left + sx + a.width / 2 - w / 2 + a.width * 0.6, y0 = a.bottom + sy - hgt;
+    const x1 = b.left + sx + b.width / 2 - w / 2 - b.width * 0.6, y1 = b.bottom + sy - hgt;
+    const wrap = document.createElement('div'); wrap.className = 'walker';
+    const cv = document.createElement('canvas'); const k = 4;
+    cv.width = SW * k; cv.height = SH * k; cv.style.width = w + 'px'; cv.style.height = hgt + 'px';
+    if (x1 < x0) cv.style.transform = 'scaleX(-1)';
+    const tag = document.createElement('span'); tag.className = 'walker-tag'; tag.textContent = fmt(t('errandTo'), nameOf(h.to));
+    wrap.append(tag, cv);
+    $('#walkers').appendChild(wrap);
+    const ctx = cv.getContext('2d'); ctx.imageSmoothingEnabled = false;
+    let f = 0;
+    const paint = () => { ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, cv.width, cv.height); ctx.setTransform(k, 0, 0, k, 0, 0); drawWalker(ctx, from.a.look || {}, f); f ^= 1; };
+    paint();
+    const step = setInterval(paint, 150);
+    const dist = Math.hypot(x1 - x0, y1 - y0);
+    const duration = Math.max(1800, Math.min(5200, dist / 0.16));
+    const anim = wrap.animate([
+      { transform: `translate(${x0}px, ${y0}px)`, opacity: 0 },
+      { transform: `translate(${x0}px, ${y0}px)`, opacity: 1, offset: 0.06 },
+      { transform: `translate(${x1}px, ${y1}px)`, opacity: 1, offset: 0.94 },
+      { transform: `translate(${x1}px, ${y1}px)`, opacity: 0 }
+    ], { duration, easing: 'linear', fill: 'forwards' });
+    anim.onfinish = () => { clearInterval(step); wrap.remove(); done(); };
+  }
+  function playHandoff(h) {
+    pushLog({ h, at: new Date() });
+    tickerMsg = { from: h.from, to: h.to, text: h.task }; renderTicker();
+    showBubble(h.from, `${t('errand')}: ${h.task}`);
+    walkErrand(h, () => {
+      ping(state.agents.get(h.to) && state.agents.get(h.to).hit);
+      showBubble(h.to, fmt(t('received'), h.task));
+    });
+  }
+  async function simLoop(kind) {
+    const act = state.activity; if (!act) return;
+    const items = (kind === 'h' ? act.handoffs : act.routines) || [];
+    if (!items.length) return;
+    const sim = act.simulation || {};
+    const every = 1000 * Math.max(3, kind === 'h' ? (sim.handoffEverySec || 9) : (sim.routineEverySec || 7));
+    await sleepPlaying(kind === 'h' ? 2600 : 1500);
+    for (let i = 0; ; i = (i + 1) % items.length) {
+      if (kind === 'h') playHandoff(items[i]); else fireRoutine(items[i]);
+      await sleepPlaying(every);
     }
   }
 
@@ -856,9 +1149,10 @@
     $('#card-room').textContent = L(ag.room.name);
     $('#card-name').textContent = ag.a.name;
     $('#card-role').textContent = L(ag.a.role);
-    const st = $('#card-status');
-    st.textContent = statusText(ag);
-    st.className = 'chip' + (ag.override && ag.override.kind ? ' ' + ag.override.kind : '');
+    stateChip($('#card-state'), stateOf(state.cardId));
+    const task = taskOf(state.cardId);
+    $('#card-task').textContent = task ? `${t('task')}: ${task}` : '';
+    $('#card-task').hidden = !task;
     const ul = $('#card-does'); ul.textContent = '';
     (L(ag.a.does) || []).forEach((d) => { const li = document.createElement('li'); li.textContent = d; ul.appendChild(li); });
     const last = state.lastBy.get(state.cardId);
@@ -867,8 +1161,7 @@
     const cv = $('#card-sprite'); const s = 6;
     cv.width = 16 * s; cv.height = 18 * s;
     const c = cv.getContext('2d'); c.setTransform(s, 0, 0, s, 0, 0); c.imageSmoothingEnabled = false;
-    px(c, 0, 0, 16, 18, '#e7f3e4');
-    alpha(c, 0.28, () => px(c, 0, 0, 16, 18, ROOM_ACCENT[ag.room.id] || '#2a7d48'));
+    px(c, 0, 0, 16, 18, '#f3f6ef');
     drawCharacter(c, ag.a.look || {}, 2, 3, false, 1);
   }
 
@@ -912,6 +1205,8 @@
     const total = state.office.rooms.reduce((s, r) => s + r.agents.length, 0);
     $('#headcount').textContent = `${total} ${t('agents')} · ${state.office.rooms.length} ${t('rooms')}`;
     buildTeam();
+    renderTray();
+    renderRoutines();
     rerenderLog();
     renderTicker();
     updateClock();
@@ -961,14 +1256,14 @@
       state.cardId = null;
       if (state.cardOpener && document.contains(state.cardOpener)) state.cardOpener.focus();
     });
-    $('#you').addEventListener('click', () => { const a = $('#actividad'); a.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' }); });
     reduceMQ.addEventListener ? reduceMQ.addEventListener('change', (e) => { reduced = e.matches; startTick(); })
       : reduceMQ.addListener((e) => { reduced = e.matches; startTick(); });
     applyLang();
     updateClock(); setInterval(updateClock, 20000);
     try {
-      const [office, feed] = await Promise.all([loadJSON('data/office.json'), loadJSON('data/feed.json')]);
-      state.office = office; state.feed = feed;
+      const [office, feed, activity] = await Promise.all([loadJSON('data/office.json'), loadJSON('data/feed.json'), loadJSON('data/activity.json')]);
+      if (!/^1\./.test(String(activity.schemaVersion || ''))) throw new Error('activity.json: schemaVersion no compatible');
+      state.office = office; state.feed = feed; state.activity = activity;
     } catch (err) {
       const p = document.createElement('p'); p.className = 'hint'; p.textContent = t('loadError');
       $('#floor').appendChild(p);
@@ -979,6 +1274,8 @@
     applyLang();
     startTick();
     feedLoop();
+    simLoop('h');
+    simLoop('r');
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
