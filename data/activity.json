@@ -1,45 +1,236 @@
 {
   "$schema": "./activity.schema.json",
-  "schemaVersion": "1.0.0",
+  "schemaVersion": "1.1.0",
   "source": "simulated",
   "generatedAt": "2026-10-19T09:00:00+02:00",
   "agents": {
-    "grok":        { "state": "working",  "task": "Repartir los encargos de la mañana" },
-    "tool":        { "state": "working",  "task": "Preparar el despliegue tras Cloudflare Access" },
-    "remotion":    { "state": "review",   "task": "Vídeo de 30 s para la demo de la oficina" },
-    "finanzas":    { "state": "needs_you", "task": "Pago de la cuota anual del dominio" },
-    "ventas":      { "state": "working",  "task": "Seguimiento de tres propuestas abiertas" },
-    "linkedin":    { "state": "review",   "task": "Borrador del artículo sobre ISO 27001" },
-    "instagram":   { "state": "working",  "task": "Carrusel de la semana" },
-    "iso":         { "state": "working",  "task": "Revisión de controles del anexo A" },
-    "grc":         { "state": "needs_you", "task": "Enviar el informe de riesgos al cliente" },
-    "engranaje":   { "state": "working",  "task": "Automatizar la copia de seguridad" },
-    "emprendedor": { "state": "review",   "task": "Plan del cuarto trimestre" },
-    "binarios":    { "state": "working",  "task": "Análisis de binarios SUID en el laboratorio" }
+    "grok": {
+      "state": "working",
+      "task": "Repartir los encargos de la mañana",
+      "lastTask": "Revisar el PR de Cloudflare Workers",
+      "since": "2026-10-19T08:00:00+02:00"
+    },
+    "tool": {
+      "state": "working",
+      "task": "Preparar el despliegue tras Cloudflare Access",
+      "lastTask": "Script de staging de dist/",
+      "since": "2026-10-19T08:00:00+02:00"
+    },
+    "remotion": {
+      "state": "review",
+      "task": "Vídeo de 30 s para la demo de la oficina",
+      "lastTask": "Plantilla de títulos pixel",
+      "since": "2026-10-19T08:00:00+02:00"
+    },
+    "finanzas": {
+      "state": "needs_you",
+      "task": "Pago de la cuota anual del dominio",
+      "lastTask": "Previsión de gastos de octubre",
+      "since": "2026-10-19T08:00:00+02:00"
+    },
+    "ventas": {
+      "state": "working",
+      "task": "Seguimiento de tres propuestas abiertas",
+      "lastTask": "Propuesta para el piloto",
+      "since": "2026-10-19T08:00:00+02:00"
+    },
+    "linkedin": {
+      "state": "review",
+      "task": "Borrador del artículo sobre ISO 27001",
+      "lastTask": "Post sobre agentes de IA",
+      "since": "2026-10-19T08:00:00+02:00"
+    },
+    "instagram": {
+      "state": "working",
+      "task": "Carrusel de la semana",
+      "lastTask": "Reels de la oficina",
+      "since": "2026-10-19T08:00:00+02:00"
+    },
+    "iso": {
+      "state": "working",
+      "task": "Revisión de controles del anexo A",
+      "lastTask": "Inventario de activos",
+      "since": "2026-10-19T08:00:00+02:00"
+    },
+    "grc": {
+      "state": "needs_you",
+      "task": "Enviar el informe de riesgos al cliente",
+      "lastTask": "Matriz de riesgos v2",
+      "since": "2026-10-19T08:00:00+02:00"
+    },
+    "engranaje": {
+      "state": "working",
+      "task": "Automatizar la copia de seguridad",
+      "lastTask": "Rotación de logs",
+      "since": "2026-10-19T08:00:00+02:00"
+    },
+    "emprendedor": {
+      "state": "review",
+      "task": "Plan del cuarto trimestre",
+      "lastTask": "Lienzo del modelo de negocio",
+      "since": "2026-10-19T08:00:00+02:00"
+    },
+    "binarios": {
+      "state": "working",
+      "task": "Análisis de binarios SUID en el laboratorio",
+      "lastTask": "Informe del laboratorio de septiembre",
+      "since": "2026-10-19T08:00:00+02:00"
+    }
   },
   "reviewQueue": [
-    { "id": "rq-001", "agent": "finanzas", "kind": "approval", "title": "Aprobar el pago del dominio", "detail": "Renovación anual. Es un cargo en la tarjeta: no se hace sin ti.", "since": "2026-10-19T08:42:00+02:00" },
-    { "id": "rq-002", "agent": "grc", "kind": "approval", "title": "Autorizar el envío del informe de riesgos", "detail": "Sale por correo al cliente; una vez enviado no se puede retirar.", "since": "2026-10-19T08:55:00+02:00" },
-    { "id": "rq-003", "agent": "remotion", "kind": "review", "title": "Revisar el vídeo de la demo", "detail": "Render terminado, 30 s, sin música.", "since": "2026-10-19T08:10:00+02:00" },
-    { "id": "rq-004", "agent": "linkedin", "kind": "review", "title": "Revisar el artículo sobre ISO 27001", "detail": "Unas 900 palabras, con tres ideas clave.", "since": "2026-10-19T07:58:00+02:00" },
-    { "id": "rq-005", "agent": "emprendedor", "kind": "review", "title": "Revisar el plan del cuarto trimestre", "detail": "Hitos, riesgos y tres apuestas.", "since": "2026-10-18T21:30:00+02:00" }
+    {
+      "id": "rq-001",
+      "agent": "finanzas",
+      "kind": "approval",
+      "title": "Aprobar el pago del dominio",
+      "detail": "Renovación anual. Es un cargo en la tarjeta: no se hace sin ti.",
+      "since": "2026-10-19T08:42:00+02:00"
+    },
+    {
+      "id": "rq-002",
+      "agent": "grc",
+      "kind": "approval",
+      "title": "Autorizar el envío del informe de riesgos",
+      "detail": "Sale por correo al cliente; una vez enviado no se puede retirar.",
+      "since": "2026-10-19T08:55:00+02:00"
+    },
+    {
+      "id": "rq-003",
+      "agent": "remotion",
+      "kind": "review",
+      "title": "Revisar el vídeo de la demo",
+      "detail": "Render terminado, 30 s, sin música.",
+      "since": "2026-10-19T08:10:00+02:00"
+    },
+    {
+      "id": "rq-004",
+      "agent": "linkedin",
+      "kind": "review",
+      "title": "Revisar el artículo sobre ISO 27001",
+      "detail": "Unas 900 palabras, con tres ideas clave.",
+      "since": "2026-10-19T07:58:00+02:00"
+    },
+    {
+      "id": "rq-005",
+      "agent": "emprendedor",
+      "kind": "review",
+      "title": "Revisar el plan del cuarto trimestre",
+      "detail": "Hitos, riesgos y tres apuestas.",
+      "since": "2026-10-18T21:30:00+02:00"
+    }
   ],
   "handoffs": [
-    { "id": "h-001", "from": "grok", "to": "tool", "task": "Configurar Cloudflare Access solo para tu correo" },
-    { "id": "h-002", "from": "ventas", "to": "finanzas", "task": "Calcular el precio del piloto" },
-    { "id": "h-003", "from": "iso", "to": "grc", "task": "Pasar las evidencias del control 5.15" },
-    { "id": "h-004", "from": "linkedin", "to": "remotion", "task": "Pedir un vídeo corto para el artículo" },
-    { "id": "h-005", "from": "binarios", "to": "iso", "task": "Entregar los hallazgos del escaneo" },
-    { "id": "h-006", "from": "emprendedor", "to": "grok", "task": "Subir el plan para que lo coordine" }
+    {
+      "id": "h-001",
+      "from": "grok",
+      "to": "tool",
+      "task": "Configurar Cloudflare Access solo para tu correo"
+    },
+    {
+      "id": "h-002",
+      "from": "ventas",
+      "to": "finanzas",
+      "task": "Calcular el precio del piloto"
+    },
+    {
+      "id": "h-003",
+      "from": "iso",
+      "to": "grc",
+      "task": "Pasar las evidencias del control 5.15"
+    },
+    {
+      "id": "h-004",
+      "from": "linkedin",
+      "to": "remotion",
+      "task": "Pedir un vídeo corto para el artículo"
+    },
+    {
+      "id": "h-005",
+      "from": "binarios",
+      "to": "iso",
+      "task": "Entregar los hallazgos del escaneo"
+    },
+    {
+      "id": "h-006",
+      "from": "emprendedor",
+      "to": "grok",
+      "task": "Subir el plan para que lo coordine"
+    }
   ],
   "routines": [
-    { "id": "r-parte", "agent": "grok", "name": "Parte de la mañana", "schedule": { "cron": "0 8 * * 1-5", "label": "Laborables · 08:00" }, "animation": "sunrise" },
-    { "id": "r-caja", "agent": "finanzas", "name": "Cierre de caja", "schedule": { "cron": "0 19 * * 1-5", "label": "Laborables · 19:00" }, "animation": "coins" },
-    { "id": "r-leads", "agent": "ventas", "name": "Seguimiento de contactos", "schedule": { "cron": "30 9 * * 1,3,5", "label": "L, X y V · 09:30" }, "animation": "bell" },
-    { "id": "r-post", "agent": "instagram", "name": "Publicación programada", "schedule": { "cron": "0 13 * * 2,4", "label": "Ma y J · 13:00" }, "animation": "hearts" },
-    { "id": "r-controles", "agent": "iso", "name": "Revisión de controles", "schedule": { "cron": "0 10 * * 1", "label": "Lunes · 10:00" }, "animation": "radar" },
-    { "id": "r-escaneo", "agent": "binarios", "name": "Escaneo nocturno", "schedule": { "cron": "0 2 * * *", "label": "Cada día · 02:00" }, "animation": "scan" },
-    { "id": "r-backup", "agent": "engranaje", "name": "Copia de seguridad", "schedule": { "cron": "0 3 * * 0", "label": "Domingos · 03:00" }, "animation": "gear" }
+    {
+      "id": "r-parte",
+      "agent": "grok",
+      "name": "Parte de la mañana",
+      "schedule": {
+        "cron": "0 8 * * 1-5",
+        "label": "Laborables · 08:00"
+      },
+      "animation": "sunrise"
+    },
+    {
+      "id": "r-caja",
+      "agent": "finanzas",
+      "name": "Cierre de caja",
+      "schedule": {
+        "cron": "0 19 * * 1-5",
+        "label": "Laborables · 19:00"
+      },
+      "animation": "coins"
+    },
+    {
+      "id": "r-leads",
+      "agent": "ventas",
+      "name": "Seguimiento de contactos",
+      "schedule": {
+        "cron": "30 9 * * 1,3,5",
+        "label": "L, X y V · 09:30"
+      },
+      "animation": "bell"
+    },
+    {
+      "id": "r-post",
+      "agent": "instagram",
+      "name": "Publicación programada",
+      "schedule": {
+        "cron": "0 13 * * 2,4",
+        "label": "Ma y J · 13:00"
+      },
+      "animation": "hearts"
+    },
+    {
+      "id": "r-controles",
+      "agent": "iso",
+      "name": "Revisión de controles",
+      "schedule": {
+        "cron": "0 10 * * 1",
+        "label": "Lunes · 10:00"
+      },
+      "animation": "radar"
+    },
+    {
+      "id": "r-escaneo",
+      "agent": "binarios",
+      "name": "Escaneo nocturno",
+      "schedule": {
+        "cron": "0 2 * * *",
+        "label": "Cada día · 02:00"
+      },
+      "animation": "scan"
+    },
+    {
+      "id": "r-backup",
+      "agent": "engranaje",
+      "name": "Copia de seguridad",
+      "schedule": {
+        "cron": "0 3 * * 0",
+        "label": "Domingos · 03:00"
+      },
+      "animation": "gear"
+    }
   ],
-  "simulation": { "handoffEverySec": 9, "routineEverySec": 7 }
+  "simulation": {
+    "handoffEverySec": 9,
+    "routineEverySec": 7
+  }
 }

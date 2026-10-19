@@ -22,6 +22,7 @@
     <symbol id="i-list" viewBox="0 0 9 9"><path d="M0 1h2v1h-2zM3 1h6v1h-6zM0 3h2v1h-2zM3 3h6v1h-6zM0 5h2v1h-2zM3 5h6v1h-6zM0 7h2v1h-2zM3 7h6v1h-6z"/></symbol>
     <symbol id="i-team" viewBox="0 0 9 9"><path d="M1 0h2v1h-2zM6 0h2v1h-2zM0 1h4v1h-4zM5 1h4v1h-4zM0 2h4v1h-4zM5 2h4v1h-4zM1 3h2v1h-2zM6 3h2v1h-2zM0 5h9v1h-9zM0 6h9v1h-9zM0 7h9v1h-9z"/></symbol>
     <symbol id="i-close" viewBox="0 0 9 9"><path d="M1 1h1v1h-1zM7 1h1v1h-1zM2 2h1v1h-1zM6 2h1v1h-1zM3 3h1v1h-1zM5 3h1v1h-1zM4 4h1v1h-1zM3 5h1v1h-1zM5 5h1v1h-1zM2 6h1v1h-1zM6 6h1v1h-1zM1 7h1v1h-1zM7 7h1v1h-1z"/></symbol>
+    <symbol id="i-board" viewBox="0 0 9 9"><path d="M0 1h9v1h-9zM0 2h1v1h-1zM8 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM8 3h1v1h-1zM0 4h1v1h-1zM8 4h1v1h-1zM0 5h1v1h-1zM2 5h5v1h-5zM8 5h1v1h-1zM0 6h1v1h-1zM8 6h1v1h-1zM0 7h9v1h-9zM3 8h1v1h-1zM5 8h1v1h-1z"/></symbol>
   </svg>
   <a class="skip" href="#bandeja" data-i18n="skip">Saltar a tu bandeja</a>
 
@@ -79,7 +80,7 @@
         </ul>
       </div>
       <div class="floor" id="floor"></div>
-      <p class="hint" data-i18n="hint">Pulsa en un agente para ver su ficha.</p>
+      <p class="hint" data-i18n="hint">Pulsa en un agente para abrir su panel.</p>
     </section>
 
     <div class="side">
@@ -139,25 +140,35 @@
   <div class="walkers" id="walkers" aria-hidden="true"></div>
   <p class="sr-only" id="announce" aria-live="polite"></p>
 
-  <dialog class="card" id="card" aria-labelledby="card-name">
+  <dialog class="card" id="card" aria-labelledby="card-name" aria-describedby="card-role">
     <div class="card-inner">
-      <button class="card-close" type="button" id="card-close" data-i18n-aria="close" aria-label="Cerrar"><svg class="ico" aria-hidden="true"><use href="#i-close"/></svg></button>
+      <span class="card-grab" aria-hidden="true"></span>
+      <button class="card-close" type="button" id="card-close" data-i18n-aria="closePanel" aria-label="Cerrar el panel"><svg class="ico" aria-hidden="true"><use href="#i-close"/></svg></button>
       <div class="card-top">
         <canvas class="card-sprite" id="card-sprite" width="16" height="18" aria-hidden="true"></canvas>
         <div>
           <p class="card-room" id="card-room"></p>
-          <h3 class="card-name" id="card-name"></h3>
+          <h2 class="card-name" id="card-name"></h2>
           <p class="card-role" id="card-role"></p>
         </div>
       </div>
-      <p class="card-status"><span class="state" id="card-state"></span></p>
-      <p class="card-task" id="card-task"></p>
-      <h4 data-i18n="whatDoes">Qué hace</h4>
-      <ul class="card-does" id="card-does"></ul>
-      <div class="card-last" id="card-last" hidden>
-        <h4 data-i18n="lastMsg">Último mensaje</h4>
+      <p class="card-status"><span class="sr-only" data-i18n="status">Estado</span> <span class="state" id="card-state"></span></p>
+      <dl class="card-facts">
+        <div><dt data-i18n="task">Ahora</dt><dd id="card-task"></dd></div>
+        <div><dt data-i18n="lastTask">Última tarea</dt><dd id="card-lasttask"></dd></div>
+      </dl>
+      <section class="card-sec" aria-labelledby="card-pend-h">
+        <h3 id="card-pend-h" data-i18n="pendingH">Pendiente de ti</h3>
+        <ul class="card-pending" id="card-pending"></ul>
+      </section>
+      <section class="card-sec" aria-labelledby="card-does-h">
+        <h3 id="card-does-h" data-i18n="whatDoes">Qué hace</h3>
+        <ul class="card-does" id="card-does"></ul>
+      </section>
+      <section class="card-sec card-last" id="card-last" aria-labelledby="card-last-h" hidden>
+        <h3 id="card-last-h" data-i18n="lastMsg">Último mensaje</h3>
         <p id="card-last-text"></p>
-      </div>
+      </section>
     </div>
   </dialog>
 

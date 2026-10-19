@@ -317,28 +317,58 @@ button {
   .ticker-text { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 }
 
-/* ---------- Ficha ---------- */
+/* ---------- Panel de detalle: lateral en escritorio, hoja inferior en móvil ---------- */
 .card {
-  width: min(24rem, calc(100vw - 1.5rem)); max-height: calc(100vh - 2rem); padding: 0;
-  color: var(--ink); border: 0; border-radius: 18px; background: var(--card);
-  box-shadow: 0 24px 80px rgba(27, 31, 58, 0.22);
+  position: fixed; inset: 0 0 0 auto; margin: 0;
+  width: min(27rem, 100vw); height: 100dvh; max-height: 100dvh; max-width: 100vw; padding: 0;
+  color: var(--ink); background: var(--card); border: 0; border-left: 2px solid var(--ink);
+  border-radius: 18px 0 0 18px; overflow-y: auto; overscroll-behavior: contain;
 }
-.card::backdrop { background: rgba(27, 31, 58, 0.4); }
-.card[open] { animation: card-in 320ms var(--ease-out); }
-@keyframes card-in { from { opacity: 0; transform: translateY(8px) scale(0.97); } to { opacity: 1; transform: none; } }
-.card-inner { position: relative; padding: 1.15rem; }
-.card-close { position: absolute; top: 0.7rem; right: 0.7rem; width: 2.25rem; height: 2.25rem; display: grid; place-items: center; border-radius: 999px; background: var(--paper); transition: transform 120ms var(--ease-out); }
+.card::backdrop { background: rgba(27, 31, 58, 0.45); }
+.card[open] { animation: panel-in 320ms var(--ease-out); }
+@keyframes panel-in { from { transform: translateX(100%); } to { transform: none; } }
+.card-inner { position: relative; padding: 1.25rem 1.25rem 2rem; }
+.card-grab { display: none; }
+.card-close { position: absolute; top: 0.9rem; right: 0.9rem; width: 2.5rem; height: 2.5rem; display: grid; place-items: center; border-radius: 999px; background: var(--paper); border: 1px solid var(--edge-2); transition: transform 120ms var(--ease-out); }
 .card-close:active { transform: scale(0.95); }
-.card-top { display: flex; gap: 0.85rem; align-items: center; padding-right: 2.4rem; }
+.card-top { display: flex; gap: 0.9rem; align-items: center; padding-right: 3rem; }
 .card-sprite { width: 5rem; height: 5.6rem; flex: none; border-radius: 12px; border: 1px solid var(--edge); }
-.card-room { margin: 0; font-size: 0.8rem; font-weight: 700; color: var(--ink-2); }
-.card-name { margin: 0.1rem 0; font-size: 1.35rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; }
+.card-room { margin: 0; font-size: 0.85rem; font-weight: 700; color: var(--ink-2); }
+.card-name { margin: 0.1rem 0; font-size: 1.6rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; }
 .card-role { margin: 0; color: var(--ink-2); font-size: 0.92rem; }
-.card-status { margin: 0.85rem 0 0.25rem; }
-.card-task { margin: 0 0 0.25rem; font-size: 0.95rem; }
-.card h4 { margin: 0.8rem 0 0.35rem; font-weight: 700; font-size: 0.85rem; color: var(--ink-2); }
-.card-does { margin: 0; padding-left: 1.1rem; display: grid; gap: 0.25rem; font-size: 0.92rem; }
-.card-last p { margin: 0; padding: 0.55rem 0.7rem; background: var(--paper); border-radius: 10px; font-size: 0.9rem; }
+.card-status { margin: 1rem 0 0.5rem; }
+.card-status .state { font-size: 0.9rem; padding: 0.25rem 0.7rem 0.25rem 0.3rem; }
+.card-facts { margin: 0.5rem 0 0; display: grid; gap: 0.5rem; }
+.card-facts div { padding: 0.6rem 0.75rem; background: var(--paper); border-radius: 10px; }
+.card-facts dt { font-size: 0.8rem; font-weight: 700; color: var(--ink-2); }
+.card-facts dd { margin: 0.1rem 0 0; font-weight: 600; }
+.card-sec h3 { margin: 1.1rem 0 0.45rem; font-weight: 700; font-size: 1rem; }
+.card-pending { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.45rem; }
+.card-pending li { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 0.55rem; align-items: start; padding: 0.55rem 0.65rem; border-radius: 10px; background: var(--paper); }
+.card-pending li.empty { display: block; }
+.card-pending li[data-state="needs_you"] .tray-kind { color: var(--red); }
+.card-does { margin: 0; padding-left: 1.1rem; display: grid; gap: 0.25rem; font-size: 0.95rem; }
+.card-last p { margin: 0; padding: 0.55rem 0.7rem; background: var(--paper); border-radius: 10px; font-size: 0.92rem; }
+@media (max-width: 700px) {
+  .card {
+    inset: auto 0 0 0; width: 100vw; height: auto; max-height: 86dvh;
+    border-left: 0; border-top: 2px solid var(--ink); border-radius: 18px 18px 0 0;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .card[open] { animation-name: sheet-in; }
+  @keyframes sheet-in { from { transform: translateY(100%); } to { transform: none; } }
+  .card-grab { display: block; width: 2.5rem; height: 0.3rem; margin: -0.5rem auto 0.75rem; border-radius: 999px; background: var(--edge-2); }
+}
+
+/* ---------- Pizarra de sala ---------- */
+.board { margin: 0.5rem 0.6rem 0.55rem; padding: 0.45rem 0.65rem 0.5rem; background: #fff; border: 2px solid var(--ink); border-radius: 6px; }
+.board-h { margin: 0 0 0.2rem; display: flex; align-items: center; gap: 0.35rem; font-size: 0.75rem; font-weight: 700; color: var(--ink-2); }
+.board-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.15rem; font-size: 0.85rem; line-height: 1.35; }
+.board-list strong { font-weight: 700; }
+
+/* ---------- Papeles ---------- */
+.paper { position: absolute; left: 0; top: 0; width: 9px; height: 11px; background: #fff; border: 1px solid var(--ink); will-change: transform, opacity; }
+.paper::after { content: ""; position: absolute; left: 2px; right: 2px; top: 3px; height: 1px; background: var(--ink); box-shadow: 0 3px 0 var(--ink); }
 
 .noscript { padding: 1rem; text-align: center; }
 

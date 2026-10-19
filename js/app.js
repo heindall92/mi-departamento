@@ -12,7 +12,7 @@
       owner: 'Responsable: Yoandy Ramírez',
       shift: 'Turno de noche · Huelva',
       officeH: 'La oficina',
-      hint: 'Pulsa en un agente para ver su ficha.',
+      hint: 'Pulsa en un agente para abrir su panel.',
       simTag: 'Estados, encargos y rutinas: datos simulados (v1)',
       legendH: 'Qué significa cada luz',
       st_working: 'Trabajando', st_working_d: 'Verde. Está en ello, no hace falta nada.',
@@ -29,6 +29,9 @@
       errand: 'Encargo', errandTo: 'para {x}', received: 'Recibido: {x}',
       navAria: 'Secciones', navOffice: 'Oficina', navTray: 'Bandeja', navRoutines: 'Rutinas', navActivity: 'Actividad', navTeam: 'Equipo',
       task: 'Ahora',
+      lastTask: 'Última tarea', pendingH: 'Pendiente de ti', noPending: 'Nada pendiente de ti.', closePanel: 'Cerrar el panel',
+      board: 'Pizarra', boardAria: 'Pizarra de {x}: tarea actual', noTask: 'Sin tarea',
+      finished: '{x} ha terminado y espera tu revisión', reviewSim: 'Revisar: {x}',
       activity: 'Actividad',
       pause: 'Pausar', play: 'Reanudar',
       pauseAria: 'Pausar la actividad', playAria: 'Reanudar la actividad',
@@ -45,7 +48,7 @@
       whatDoes: 'Qué hace',
       lastMsg: 'Último mensaje',
       openCard: 'Abrir ficha de',
-      openCardShort: 'Pulsa para abrir su ficha',
+      openCardShort: 'Pulsa para abrir su panel',
       talkingTo: 'Hablando con {x}',
       writingToYou: 'Escribiéndote',
       reading: 'Leyendo mensaje',
@@ -82,6 +85,9 @@
       errand: 'Errand', errandTo: 'to {x}', received: 'Received: {x}',
       navAria: 'Sections', navOffice: 'Office', navTray: 'Tray', navRoutines: 'Routines', navActivity: 'Activity', navTeam: 'Team',
       task: 'Now',
+      lastTask: 'Last task', pendingH: 'Waiting on you', noPending: 'Nothing waiting on you.', closePanel: 'Close the panel',
+      board: 'Board', boardAria: '{x} board: current task', noTask: 'No task',
+      finished: '{x} finished and is waiting for your review', reviewSim: 'Review: {x}',
       activity: 'Activity',
       pause: 'Pause', play: 'Resume',
       pauseAria: 'Pause the activity', playAria: 'Resume the activity',
@@ -134,7 +140,7 @@
     agents: new Map(), rooms: [],
     frame: 0, tickId: 0, playing: true,
     log: [], lastBy: new Map(), cardId: null,
-    activity: null, roomFx: new Map(), routineLast: new Map()
+    activity: null, roomFx: new Map(), routineLast: new Map(), flash: new Map()
   };
   /* Estados de mesa: color + icono + texto (nunca solo color). */
   const STATES = {
@@ -145,6 +151,7 @@
   function actAgent(id) { const a = state.activity && state.activity.agents; return (a && a[id]) || null; }
   function stateOf(id) { const a = actAgent(id); return a && STATES[a.state] ? a.state : 'working'; }
   function taskOf(id) { const a = actAgent(id); return (a && a.task) || ''; }
+  function lastTaskOf(id) { const a = actAgent(id); return (a && a.lastTask) || ''; }
   function icon(name) {
     const ns = 'http://www.w3.org/2000/svg';
     const sv = document.createElementNS(ns, 'svg'); sv.setAttribute('class', 'ico'); sv.setAttribute('aria-hidden', 'true');
@@ -658,9 +665,7 @@
     px(c, cx - 5, DESK_Y - 5, 10, 5, '#c9c4d4'); px(c, cx - 5, DESK_Y - 5, 10, 1, '#e4e0ec');
     px(c, cx - 1, DESK_Y - 3, 2, 2, (typing && f) ? '#5eead4' : '#0F766E');
     px(c, cx - 6, DESK_Y, 12, 1, '#8d879b');
-    // mug + steam
-    px(c, cx + 9, DESK_Y - 3, 3, 3, '#e8e2d0'); px(c, cx + 12, DESK_Y - 2, 1, 1, '#e8e2d0');
-    if (!reduced) alpha(c, 0.5, () => px(c, cx + 10, DESK_Y - 5 - f, 1, 1, '#ffffff'));
+    drawMonitor(c, s.id, cx + 8, DESK_Y - 11, frameN, ag.seed);
     // lámpara de estado (el icono va en la placa DOM .desk-lamp)
     const st = stateOf(s.id), lampCol = STATES[st].lamp;
     const glowOn = st !== 'needs_you' || reduced || f;
@@ -673,6 +678,36 @@
     const hand = look.kind === 'robot' ? (look.metal || '#b9c2cc') : (look.skin || '#e0b088');
     const lh = typing && !reduced ? (f ? -1 : 0) : 0, rh = typing && !reduced ? (f ? 0 : -1) : 0;
     px(c, cx - 7, DESK_Y - 1 + lh, 2, 2, hand); px(c, cx + 5, DESK_Y - 1 + rh, 2, 2, hand);
+  }
+
+  /* Monitor de mesa: código que corre si está en verde, destello al pasar a amarillo. */
+  function drawMonitor(c, id, x, y, frameN, seed) {
+    const st = stateOf(id), w = 8, h = 7;
+    px(c, x - 1, y - 1, w + 2, h + 2, '#1b1f3a');
+    px(c, x + 3, y + h + 1, 2, 2, '#1b1f3a'); px(c, x + 1, y + h + 2, 6, 1, '#1b1f3a');
+    const fl = state.flash.get(id);
+    if (fl && !reduced && performance.now() < fl) {
+      const on = Math.floor(performance.now() / 110) % 2 === 0;
+      px(c, x, y, w, h, on ? '#fff6d8' : '#ffc53d');
+      if (on) alpha(c, 0.35, () => px(c, x - 3, y - 3, w + 6, h + 6, '#ffc53d'));
+      return;
+    }
+    if (st === 'working') {
+      px(c, x, y, w, h, '#0d1a26');
+      const off = reduced ? 0 : frameN % 6;
+      for (let i = 0; i < 4; i++) {
+        const row = (i * 2 + 6 - off) % 7; if (row >= h - 1) continue;
+        const lw = 2 + ((seed + i * 3 + Math.floor((frameN + i) / 6)) % 5);
+        px(c, x + 1, y + row + 0.5 | 0, 1, 1, '#3ccf6e'); px(c, x + 2, y + row, Math.min(lw, w - 3), 1, i % 2 ? '#a7f3c9' : '#e8f7ee');
+      }
+      if (!reduced && frameN % 2) px(c, x + w - 2, y + h - 2, 1, 1, '#ffffff');
+    } else if (st === 'review') {
+      px(c, x, y, w, h, '#ffc53d');
+      px(c, x + 2, y + 3, 1, 1, '#1b1f3a'); px(c, x + 3, y + 4, 1, 1, '#1b1f3a'); px(c, x + 4, y + 3, 1, 1, '#1b1f3a'); px(c, x + 5, y + 2, 1, 1, '#1b1f3a');
+    } else {
+      px(c, x, y, w, h, '#b3261e');
+      px(c, x + 3, y + 1, 2, 3, '#ffffff'); px(c, x + 3, y + 5, 2, 1, '#ffffff');
+    }
   }
 
   function isTyping(ag) { return ag.override ? !!ag.override.typing || ag.a.anim === 'type' : ag.a.anim === 'type'; }
@@ -745,6 +780,11 @@
     canvas.style.aspectRatio = `${W} / ${H}`;
     stage.appendChild(canvas);
     el.append(head, stage);
+    let board = null;
+    if (n) {
+      board = document.createElement('div'); board.className = 'board'; board.setAttribute('role', 'group');
+      el.insertBefore(board, stage);
+    }
     const fire = document.createElement('span'); fire.className = 'room-fire'; fire.setAttribute('aria-hidden', 'true');
     stage.appendChild(fire);
     if (extra) {
@@ -754,7 +794,7 @@
       el.setAttribute('aria-labelledby', h.id);
       canvas.setAttribute('aria-hidden', 'true');
     }
-    const r = { id: room.id, room, W: 0, el, canvas, ctx: canvas.getContext('2d'), scale: 3, slots: [], h, count, extra, fire };
+    const r = { id: room.id, room, W: 0, el, canvas, ctx: canvas.getContext('2d'), scale: 3, slots: [], h, count, extra, fire, board };
     if (n) {
       const labels = document.createElement('div'); labels.className = 'labels';
       labels.style.gridTemplateColumns = `repeat(${n}, minmax(0, 1fr))`;
@@ -975,6 +1015,45 @@
     }
   }
 
+  /* ---------------------------------------------------------- pizarras */
+  function renderBoards() {
+    state.rooms.forEach((r) => {
+      if (!r.board) return;
+      r.board.textContent = '';
+      r.board.setAttribute('aria-label', fmt(t('boardAria'), L(r.room.name)));
+      const h = document.createElement('p'); h.className = 'board-h';
+      h.append(icon('board'), document.createTextNode(t('board')));
+      const ul = document.createElement('ul'); ul.className = 'board-list';
+      r.room.agents.forEach((a) => {
+        const li = document.createElement('li'); li.dataset.state = stateOf(a.id);
+        const who = document.createElement('strong'); who.textContent = (a.short || a.name) + ':';
+        li.append(who, document.createTextNode(' ' + (taskOf(a.id) || t('noTask'))));
+        ul.appendChild(li);
+      });
+      r.board.append(h, ul);
+    });
+  }
+
+  /* Cambio de estado (simulado en v1; en v2 vendrá de activity.json en vivo). */
+  function setAgentState(id, st, task) {
+    const act = state.activity; if (!act || !STATES[st]) return;
+    act.agents = act.agents || {};
+    const cur = act.agents[id] || { state: 'working' };
+    const prev = cur.state;
+    if (task && task !== cur.task) { if (cur.task) cur.lastTask = cur.task; cur.task = task; }
+    cur.state = st; cur.since = new Date().toISOString();
+    act.agents[id] = cur;
+    if (st === 'review' && prev !== 'review') {
+      if (!reduced) { state.flash.set(id, performance.now() + 900); setTimeout(() => state.flash.delete(id), 950); kickFx(); }
+      const ann = $('#announce'); if (ann) ann.textContent = fmt(t('finished'), nameOf(id));
+    }
+    const ag = state.agents.get(id);
+    if (ag) { renderAgent(ag); const r = state.rooms.find((x) => x.room === ag.room); if (r) drawRoom(r); }
+    renderBoards(); renderTray(); buildTeam();
+    if (state.cardId === id) fillCard();
+  }
+  function kickFx() { if (!fxRaf && !reduced) fxRaf = requestAnimationFrame(fxLoop); }
+
   /* --------------------------------------------- bandeja de revisión */
   function dayTime(iso) {
     const d = new Date(iso); if (isNaN(d)) return '';
@@ -1039,8 +1118,12 @@
   let fxRaf = 0, fxLastDraw = 0;
   function fxLoop(ts) {
     fxRaf = 0;
-    if (!state.roomFx.size) return;
-    if (ts - fxLastDraw > 90) { fxLastDraw = ts; state.rooms.forEach((r) => { if (state.roomFx.has(r.id)) drawRoom(r); }); }
+    if (!state.roomFx.size && !state.flash.size) return;
+    if (ts - fxLastDraw > 90) {
+      fxLastDraw = ts;
+      const flashRooms = new Set([...state.flash.keys()].map((id) => { const ag = state.agents.get(id); return ag && ag.room; }));
+      state.rooms.forEach((r) => { if (state.roomFx.has(r.id) || flashRooms.has(r.room)) drawRoom(r); });
+    }
     fxRaf = requestAnimationFrame(fxLoop);
   }
   function fireRoutine(r) {
@@ -1114,9 +1197,40 @@
     tickerMsg = { from: h.from, to: h.to, text: h.task }; renderTicker();
     showBubble(h.from, `${t('errand')}: ${h.task}`);
     walkErrand(h, () => {
-      ping(state.agents.get(h.to) && state.agents.get(h.to).hit);
+      const to = state.agents.get(h.to);
+      ping(to && to.hit);
+      if (to) burstPapers(to.hit);
       showBubble(h.to, fmt(t('received'), h.task));
+      // simulación: quien entrega termina (amarillo); quien recibe se pone a ello (verde)
+      const act = state.activity;
+      if (stateOf(h.from) === 'working') {
+        act.reviewQueue = (act.reviewQueue || []).filter((it) => it.id !== 'sim-' + h.from);
+        act.reviewQueue.push({ id: 'sim-' + h.from, agent: h.from, kind: 'review', title: fmt(t('reviewSim'), taskOf(h.from) || h.task), since: new Date().toISOString() });
+        setAgentState(h.from, 'review');
+      }
+      if (stateOf(h.to) !== 'needs_you') {
+        act.reviewQueue = (act.reviewQueue || []).filter((it) => it.id !== 'sim-' + h.to);
+        setAgentState(h.to, 'working', h.task);
+      }
     });
+  }
+  /* Papeles que salen volando al entregar el encargo. */
+  function burstPapers(el) {
+    if (reduced || !el || !Element.prototype.animate) return;
+    const r = el.getBoundingClientRect();
+    const x0 = r.left + r.width / 2, y0 = r.top + r.height * 0.35;
+    const fx = $('#fx');
+    for (let i = 0; i < 7; i++) {
+      const p = document.createElement('span'); p.className = 'paper';
+      fx.appendChild(p);
+      const dx = (i - 3) * 16 + (Math.random() * 10 - 5), up = 34 + Math.random() * 26, rot = (Math.random() * 2 - 1) * 200;
+      const a = p.animate([
+        { transform: `translate(${x0}px, ${y0}px) rotate(0deg) scale(.6)`, opacity: 0 },
+        { transform: `translate(${x0 + dx * 0.6}px, ${y0 - up}px) rotate(${rot * 0.5}deg) scale(1)`, opacity: 1, offset: 0.35 },
+        { transform: `translate(${x0 + dx}px, ${y0 + 26}px) rotate(${rot}deg) scale(1)`, opacity: 0 }
+      ], { duration: 900 + i * 40, easing: 'cubic-bezier(.2,.7,.3,1)', fill: 'forwards' });
+      a.onfinish = () => p.remove();
+    }
   }
   async function simLoop(kind) {
     const act = state.activity; if (!act) return;
@@ -1140,6 +1254,15 @@
     else d.setAttribute('open', '');
     $('#card-close').focus();
   }
+  function trapFocus(e) {
+    if (e.key !== 'Tab') return;
+    const f = $$('button:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])', dlg()).filter((x) => !x.hidden && x.offsetParent !== null);
+    if (!f.length) return;
+    const first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    else if (!dlg().contains(document.activeElement)) { e.preventDefault(); first.focus(); }
+  }
   function closeCard() {
     const d = dlg();
     if (typeof d.close === 'function') d.close(); else d.removeAttribute('open');
@@ -1150,9 +1273,20 @@
     $('#card-name').textContent = ag.a.name;
     $('#card-role').textContent = L(ag.a.role);
     stateChip($('#card-state'), stateOf(state.cardId));
-    const task = taskOf(state.cardId);
-    $('#card-task').textContent = task ? `${t('task')}: ${task}` : '';
-    $('#card-task').hidden = !task;
+    $('#card-task').textContent = taskOf(state.cardId) || t('noTask');
+    $('#card-lasttask').textContent = lastTaskOf(state.cardId) || '—';
+    const pend = $('#card-pending'); pend.textContent = '';
+    const items = ((state.activity && state.activity.reviewQueue) || []).filter((it) => it.agent === state.cardId);
+    if (!items.length) { const li = document.createElement('li'); li.className = 'empty'; li.textContent = t('noPending'); pend.appendChild(li); }
+    items.forEach((it) => {
+      const stt = it.kind === 'approval' ? 'needs_you' : 'review';
+      const li = document.createElement('li'); li.dataset.state = stt;
+      const lamp = document.createElement('span'); lamp.className = 'lamp'; lamp.appendChild(icon(STATES[stt].icon));
+      const body = document.createElement('div');
+      const k = document.createElement('p'); k.className = 'tray-kind'; k.textContent = t('kind_' + it.kind);
+      const ti = document.createElement('p'); ti.className = 'tray-title'; ti.textContent = it.title;
+      body.append(k, ti); li.append(lamp, body); pend.appendChild(li);
+    });
     const ul = $('#card-does'); ul.textContent = '';
     (L(ag.a.does) || []).forEach((d) => { const li = document.createElement('li'); li.textContent = d; ul.appendChild(li); });
     const last = state.lastBy.get(state.cardId);
@@ -1207,6 +1341,7 @@
     buildTeam();
     renderTray();
     renderRoutines();
+    renderBoards();
     rerenderLog();
     renderTicker();
     updateClock();
@@ -1252,6 +1387,7 @@
     $('#playpause').addEventListener('click', () => { state.playing = !state.playing; renderPlayPause(); });
     $('#card-close').addEventListener('click', closeCard);
     dlg().addEventListener('click', (e) => { if (e.target === dlg()) closeCard(); });
+    dlg().addEventListener('keydown', (e) => { if (e.key === 'Escape') { e.preventDefault(); closeCard(); } else trapFocus(e); });
     dlg().addEventListener('close', () => {
       state.cardId = null;
       if (state.cardOpener && document.contains(state.cardOpener)) state.cardOpener.focus();

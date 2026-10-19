@@ -18,6 +18,10 @@ El alojamiento de destino es **Cloudflare Workers** (activos estáticos). Tras e
 - **Encargos a mano**: cuando un bot pasa trabajo a otro, su personaje cruza hasta la otra sala con un sobre en las manos.
 - **Rutinas programadas**: panel con cada rutina, su horario y la última ejecución. Al sonar, la sala muestra su animación propia (amanecer, monedas, campana, corazones, radar, barrido, engranaje).
 - **Pendiente de tu revisión**: bandeja con lo que espera a Yoandy; primero las aprobaciones, luego lo más antiguo. El contador aparece también en «Tú» y en la barra inferior del móvil.
+- **Pizarra por sala**: muestra la tarea actual de cada bot, leída de `data/activity.json`.
+- **Monitores**: corren código mientras el bot está en verde y destellan al pasar a amarillo.
+- **Papeles al entregar**: el paseo del sobre termina con papeles volando en la mesa de destino.
+- **Panel de detalle**: al pulsar un bot se abre un panel lateral (hoja inferior en móvil) con su estado, la tarea actual, la última tarea y lo que tiene pendiente de ti. Atrapa el foco, se cierra con Esc y devuelve el foco al origen.
 - **Móvil**: barra inferior con iconos (Oficina, Bandeja, Rutinas, Actividad, Equipo).
 - **Ficha de agente**: al pulsar un agente se abre una tarjeta con su rol, qué hace y su último mensaje.
 - **El equipo**: la misma información en texto (accesible y legible sin canvas).
@@ -125,13 +129,13 @@ npx wrangler deploy
 - `from` / `to`: `id` de un agente o `"tu"` (el usuario).
 - Opcionales: `status` (texto del chip del remitente), `typing: true` (anima el tecleo), `delayMs`.
 
-### `data/activity.json` (esquema v1)
+### `data/activity.json` (esquema 1.1.0)
 
 Contrato estable entre la oficina y quien la alimente. v1 usa datos simulados; v2 lo generará la actividad real sin tocar el código. Esquema completo: [`data/activity.schema.json`](data/activity.schema.json).
 
 ```json
 {
-  "schemaVersion": "1.0.0",
+  "schemaVersion": "1.1.0",
   "source": "simulated",
   "generatedAt": "2026-10-19T09:00:00+02:00",
   "agents": { "finanzas": { "state": "needs_you", "task": "Pago de la cuota anual del dominio" } },
@@ -154,6 +158,8 @@ Contrato estable entre la oficina y quien la alimente. v1 usa datos simulados; v
 | `source` | `simulated` (ejemplo) o `live` (real). |
 | `agents.<id>.state` | `working` (verde, Trabajando) · `needs_you` (rojo, Te necesita: aprobación de algo irreversible) · `review` (amarillo, Para revisar). Sin entrada = `working`. |
 | `agents.<id>.task` | Qué está haciendo ahora (≤160 caracteres). |
+| `agents.<id>.lastTask` | *Desde 1.1.0, opcional.* Última tarea terminada (panel de detalle). |
+| `agents.<id>.since` | *Desde 1.1.0, opcional.* Desde cuándo está en ese estado. |
 | `reviewQueue[]` | Bandeja. `kind`: `approval` o `review`; `since` en ISO 8601 con zona. |
 | `handoffs[]` | Encargos de `from` a `to` (ids de `office.json`). En `live`, añade `at`. |
 | `routines[]` | `schedule.cron` (5 campos, hora de Madrid) + `label` legible; `animation`: `sunrise`, `coins`, `bell`, `hearts`, `radar`, `scan`, `gear`; `lastRun` opcional. |
@@ -199,4 +205,4 @@ El push a `main` dispara el workflow de Cloudflare (y GitHub Pages, mientras sig
 
 ## Créditos
 
-Concepto: agentes de IA en una oficina pixel-art. Diseño, textos, arte y código originales de este repositorio.
+Concepto: agentes de IA en una oficina pixel-art. Algunas ideas visuales de la v3 (pizarra, monitores, papeles al entregar) se inspiran en [pixel-office](https://github.com/gonzalonicolasr/pixel-office) (MIT); no se ha copiado ni código ni recursos. Diseño, textos, arte y código originales de este repositorio.
