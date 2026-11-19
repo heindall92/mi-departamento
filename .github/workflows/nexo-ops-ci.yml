@@ -1,0 +1,46 @@
+name: NEXO-OPS CI
+
+on:
+  push:
+    paths: ['apps/nexo-ops/**', 'nexo-ops/**', '.github/workflows/nexo-ops-ci.yml']
+  pull_request:
+    paths: ['apps/nexo-ops/**', 'nexo-ops/**', '.github/workflows/nexo-ops-ci.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/nexo-ops
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/nexo-ops/package-lock.json
+      - run: npm ci
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Tests unitarios
+        run: npm test
+      - name: La demo publicada en /nexo-ops coincide con el código fuente
+        run: |
+          npm run build:pages
+          git diff --stat --exit-code -- ../../nexo-ops || (echo "::error::/nexo-ops está desactualizado. Ejecuta 'npm run build:pages' y haz commit." && exit 1)
+      - name: E2E en Chromium (guion de demo a 1280×720)
+        run: |
+          npm run build
+          npm i --no-save playwright@1.55.1
+          npx playwright install --with-deps chromium
+          SMOKE_OUT=smoke-output npm run smoke
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nexo-ops-smoke
+          path: apps/nexo-ops/smoke-output
+          if-no-files-found: ignore
