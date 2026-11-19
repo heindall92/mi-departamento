@@ -12,18 +12,21 @@ permissions:
 
 jobs:
   verify:
-    runs-on: ubuntu-latest
+    # Fijado: ubuntu-latest pasó a 26.04 y Playwright 1.55 no da soporte a Chromium en él.
+    runs-on: ubuntu-24.04
     defaults:
       run:
         working-directory: apps/nexo-ops
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
           cache-dependency-path: apps/nexo-ops/package-lock.json
       - run: npm ci
+      - name: Auditoría de dependencias (falla con vulnerabilidades altas o críticas)
+        run: npm audit --audit-level=high
       - name: Typecheck
         run: npm run typecheck
       - name: Tests unitarios
@@ -38,7 +41,7 @@ jobs:
           npm i --no-save playwright@1.55.1
           npx playwright install --with-deps chromium
           SMOKE_OUT=smoke-output npm run smoke
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         if: always()
         with:
           name: nexo-ops-smoke
