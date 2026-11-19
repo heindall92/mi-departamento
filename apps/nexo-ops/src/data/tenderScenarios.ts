@@ -11,7 +11,7 @@ export const CAPABILITIES: Capability[] = [
   { id: 'ens_media', label: 'Certificación ENS categoría MEDIA' },
   { id: 'ens_alta', label: 'Certificación ENS categoría ALTA' },
   { id: 'eu_hosting', label: 'Alojamiento e inferencia con residencia de datos en la UE' },
-  { id: 'dpo', label: 'DPO / equipo de privacidad (EIPD, Art. 28)' },
+  { id: 'dpo', label: 'DPO / equipo de privacidad (EIPD Art. 35 · encargo Art. 28)' },
   { id: 'accessibility', label: 'Equipo de accesibilidad (WCAG 2.1 AA / UNE-EN 301549)' },
   { id: 'iso42001', label: 'Sistema de gestión de IA ISO/IEC 42001' },
   { id: 'ai_act_conformity', label: 'Metodología de conformidad EU AI Act (alto riesgo)' },
@@ -138,3 +138,128 @@ export const TENDER_SCENARIOS: TenderScenario[] = [
     ],
   },
 ];
+
+/* ───────────────────────── Inglés ─────────────────────────
+   Capa de textos: ids, riesgos, penalizaciones y capacidades salen del objeto español. */
+
+const CAPS_EN: Record<CapabilityId, string> = {
+  crm_integration: 'Proven CRM integration experience (Dynamics / Salesforce)',
+  iso27001: 'Current ISO/IEC 27001 certification',
+  ens_media: 'ENS (Spanish National Security Framework) certification, MEDIUM category',
+  ens_alta: 'ENS certification, HIGH category',
+  eu_hosting: 'Hosting and inference with EU data residency',
+  dpo: 'DPO / privacy team (DPIA Art. 35 · processor Art. 28)',
+  accessibility: 'Accessibility team (WCAG 2.1 AA / EN 301 549)',
+  iso42001: 'ISO/IEC 42001 AI management system',
+  ai_act_conformity: 'EU AI Act conformity methodology (high risk)',
+  soc24x7: '24/7 SOC, in-house or contracted',
+};
+
+export function capabilities(lang: 'es' | 'en'): Capability[] {
+  return lang === 'en' ? CAPABILITIES.map((c) => ({ ...c, label: CAPS_EN[c.id] })) : CAPABILITIES;
+}
+
+const TEXT_A_EN = `TECHNICAL SPECIFICATIONS — File CX-2026/014 (fictitious)
+Omnichannel customer service transformation with automation for Aguas del Litoral, a public business entity (fictitious).
+Tender budget: 480,000 euros (VAT excluded). Execution period: 6 months from contract signature.
+1. Technical solvency: at least two omnichannel CRM implementation projects in the last three years shall be required, an exclusionary requirement.
+2. The bidder must prove certification of conformity with the National Security Framework (ENS, RD 311/2022) in the MEDIUM category, a mandatory requirement.
+3. The existing CRM (Microsoft Dynamics 365) will be integrated with the email, WhatsApp Business and web chat channels.
+4. A self-service assistant will be deployed with hand-over to a human agent when the citizen requests it.
+5. Interfaces will meet WCAG 2.1 AA accessibility requirements in accordance with EN 301 549.
+6. The contractor will act as data processor (GDPR Art. 28) and will collaborate on the data protection impact assessment (DPIA).
+7. Data will be hosted in data centres located in the European Economic Area; international transfers are not permitted.
+8. The system will inform the user that they are interacting with an artificial intelligence system.
+9. Delay penalty: 0.5% of the price per week of delay in going live, up to a maximum of 10%.
+10. Critical incident resolution SLA of 4 hours; failure to meet it carries a penalty of 2% of monthly billing.
+11. Dynamics 365 licences will be provided by the entity; integration with the current telephony provider depends on its API.
+12. Subcontracting may not exceed 30% of the award amount.`;
+
+const TEXT_B_EN = `TECHNICAL SPECIFICATIONS — File IA-2026/007 (fictitious)
+Integration of AI agents into citizen services and social benefit processing for the Regional Social Services Agency (fictitious).
+Tender budget: 1,200,000 euros (VAT excluded). Execution period: 9 months, with an operational pilot at 3 months.
+1. Certification under the National Security Framework (ENS) in the HIGH category shall be required, an exclusionary requirement.
+2. The bidder must prove a current ISO/IEC 27001 certification, a mandatory requirement.
+3. Data and inference residency: all data and model processing will take place within the European Union, an exclusionary requirement.
+4. The system assesses eligibility for public benefits and is considered high risk (Regulation (EU) 2024/1689, Annex III.5.a): the contractor will provide technical documentation, risk management (Art. 9), automatic logging (Art. 12) and human oversight (Art. 14).
+5. The contractor will have an AI management system compliant with ISO/IEC 42001 or a certification plan within 12 months.
+6. A DPIA will be carried out and no decisions based solely on automated processing (GDPR Art. 22) will be taken without human intervention.
+7. Minimum availability of 99.9%; penalty of 1% of billing per day of non-compliance, up to a maximum of 20%.
+8. Milestones: pilot at 3 months and production at 9 months; delay of the pilot may be grounds for termination of the contract.
+9. Integration with the electronic processing platform and with Cl@ve for citizen identification.
+10. 24/7 security monitoring (SOC) with incident response in under 1 hour.
+11. WCAG 2.1 AA accessibility, plain language and support for co-official languages.
+12. The bidder will guarantee the continuity of the general-purpose AI model provider and portability to an alternative model.
+13. Collaboration on the fundamental rights impact assessment (Art. 27 of the AI Act).`;
+
+type ClauseText = { summary: string; business: string; evidence: string };
+const CLAUSES_EN: Record<string, ClauseText> = {
+  A1: { summary: 'Solvency: 2 omnichannel CRM projects in the last 3 years', business: 'Without proof, the bid is excluded when the envelope is opened.', evidence: 'at least two omnichannel CRM implementation projects in the last three years shall be required, an exclusionary requirement' },
+  A2: { summary: 'Bidder’s ENS certification, MEDIUM category', business: 'Without the certificate the bid is inadmissible: price cannot make up for it.', evidence: 'certification of conformity with the National Security Framework (ENS, RD 311/2022) in the MEDIUM category' },
+  A3: { summary: 'Go-live in 6 months; 0.5%/week of delay (max. 10%)', business: 'Each week of delay costs €2,400; the maximum is €48,000 of margin.', evidence: '0.5% of the price per week of delay in going live, up to a maximum of 10%' },
+  A4: { summary: '4 h critical incident SLA; 2% of monthly invoice if missed', business: 'Requires an on-call rota; without one, the penalty recurs.', evidence: 'Critical incident resolution SLA of 4 hours' },
+  A5: { summary: 'Dynamics 365 integration + email, WhatsApp Business and web chat', business: 'This is the core of the project: 55% of the effort.', evidence: 'The existing CRM (Microsoft Dynamics 365) will be integrated' },
+  A6: { summary: 'Self-service assistant with hand-over to a human agent', business: 'A differentiator if demonstrated with guardrails (Module 1).', evidence: 'self-service assistant will be deployed with hand-over to a human agent' },
+  A7: { summary: 'WCAG 2.1 AA accessibility (EN 301 549)', business: 'A legal requirement in the Spanish public sector (RD 1112/2018).', evidence: 'WCAG 2.1 AA accessibility requirements in accordance with EN 301 549' },
+  A8: { summary: 'Data processor (Art. 28) + DPIA collaboration', business: 'Joint liability in a breach if the processing agreement is weak.', evidence: 'will act as data processor (GDPR Art. 28)' },
+  A9: { summary: 'Data in the EEA; international transfers prohibited', business: 'Rules out LLM APIs without a guaranteed EU region. A key hidden clause.', evidence: 'international transfers are not permitted' },
+  A10: { summary: 'Transparency: disclose that users interact with AI (Art. 50)', business: 'Cheap to meet, but its absence is a direct breach of the AI Act.', evidence: 'will inform the user that they are interacting with an artificial intelligence system' },
+  A11: { summary: 'Client’s Dynamics licences; telephony depends on current provider’s API', business: 'Schedule risk outside our control: it must be bounded in the bid.', evidence: 'integration with the current telephony provider depends on its API' },
+  A12: { summary: 'Maximum 30% subcontracting', business: 'Limits relying on partners for profiles we do not have.', evidence: 'Subcontracting may not exceed 30%' },
+  B1: { summary: 'ENS certification, HIGH category', business: 'Getting it takes months: if you do not have it today, the tender is lost.', evidence: 'National Security Framework (ENS) in the HIGH category shall be required, an exclusionary requirement' },
+  B2: { summary: 'Bidder’s current ISO/IEC 27001', business: 'Admission filter.', evidence: 'current ISO/IEC 27001 certification, a mandatory requirement' },
+  B3: { summary: 'Data and inference residency in the EU', business: 'Determines which models and providers can be offered.', evidence: 'all data and model processing will take place within the European Union' },
+  B4: { summary: 'High-risk system (Annex III.5.a): Arts. 9, 12 and 14', business: 'Auditable documentation, risk management and human oversight: half a project in itself.', evidence: 'is considered high risk (Regulation (EU) 2024/1689, Annex III.5.a)' },
+  B5: { summary: 'ISO/IEC 42001 AIMS or certification plan within 12 months', business: 'A plan is accepted: it can be bid with a credible roadmap.', evidence: 'AI management system compliant with ISO/IEC 42001 or a certification plan within 12 months' },
+  B6: { summary: 'DPIA + no solely automated decisions (Art. 22)', business: 'Forces real HITL design, not decorative.', evidence: 'no decisions based solely on automated processing (GDPR Art. 22)' },
+  B7: { summary: '99.9% availability; 1%/day of non-compliance (max. 20%)', business: 'Up to €240,000 at risk: requires a high-availability architecture.', evidence: 'penalty of 1% of billing per day of non-compliance, up to a maximum of 20%' },
+  B8: { summary: 'Pilot at 3 months (termination ground) and production at 9', business: 'A delay is not paid with a penalty: you lose the contract.', evidence: 'delay of the pilot may be grounds for termination of the contract' },
+  B9: { summary: 'Integration with e-processing platform and Cl@ve', business: 'A known integration, but on the administration’s timetable.', evidence: 'Integration with the electronic processing platform and with Cl@ve' },
+  B10: { summary: '24/7 SOC with incident response < 1 h', business: 'Without an in-house SOC it must be subcontracted within the 30% allowed.', evidence: '24/7 security monitoring (SOC) with incident response in under 1 hour' },
+  B11: { summary: 'Accessibility, plain language and co-official languages', business: 'Affects prompt design and testing.', evidence: 'WCAG 2.1 AA accessibility, plain language and support for co-official languages' },
+  B12: { summary: 'GPAI provider continuity and model portability', business: 'Requires a model-agnostic architecture; otherwise, critical dependency on a third party.', evidence: 'continuity of the general-purpose AI model provider and portability' },
+  B13: { summary: 'Collaboration on the FRIA (AI Act Art. 27)', business: 'Legal-technical work that must be budgeted explicitly.', evidence: 'fundamental rights impact assessment (Art. 27 of the AI Act)' },
+};
+
+const SCENARIO_EN: Record<string, { title: string; sector: string; proposalOutline: string[]; sourceText: string }> = {
+  cx_omnicanal: {
+    title: 'A · Omnichannel CX/CRM transformation with automation',
+    sector: 'Utilities / public business entity',
+    sourceText: TEXT_A_EN,
+    proposalOutline: [
+      'Executive summary and understanding of the challenge',
+      'Target omnichannel architecture (Dynamics 365 + channels)',
+      'Automation plan with guardrails and HITL',
+      'ENS MEDIUM security plan and data protection',
+      'Methodology, work plan and milestones (6 months)',
+      'Service model and SLA (4 h critical incidents)',
+      'Team, profiles and allocation',
+      'Risk and dependency management',
+    ],
+  },
+  ia_regulada: {
+    title: 'B · Agentic AI in regulated citizen services',
+    sector: 'Regional administration / social services',
+    sourceText: TEXT_B_EN,
+    proposalOutline: [
+      'Executive summary and responsible AI approach',
+      'Model-agnostic architecture with EU residency',
+      'EU AI Act conformity plan (high risk): Arts. 9-15 and 27',
+      'Human oversight design (AI Act Art. 14 · GDPR Art. 22)',
+      'ENS HIGH security, ISO 27001 and 24/7 SOC operations',
+      '3-month pilot plan with exit criteria',
+      '99.9% high availability and continuity',
+      'Team, profiles and allocation',
+      'ISO/IEC 42001 roadmap',
+    ],
+  },
+};
+
+export function tenderScenarios(lang: 'es' | 'en'): TenderScenario[] {
+  if (lang === 'es') return TENDER_SCENARIOS;
+  return TENDER_SCENARIOS.map((s) => ({
+    ...s,
+    ...SCENARIO_EN[s.id]!,
+    clauses: s.clauses.map((c) => ({ ...c, ...CLAUSES_EN[c.id]! })),
+  }));
+}

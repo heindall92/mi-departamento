@@ -45,7 +45,8 @@ if (!up) {
 }
 
 const browser = await chromium.launch();
-const context = await browser.newContext({ viewport: { width: 1280, height: 720 }, deviceScaleFactor: 1, acceptDownloads: true });
+// El idioma por defecto sigue al navegador: el guion principal se ejecuta en español de forma explícita.
+const context = await browser.newContext({ viewport: { width: 1280, height: 720 }, deviceScaleFactor: 1, acceptDownloads: true, locale: 'es-ES' });
 const page = await context.newPage();
 
 const consoleErrors = [];
@@ -143,8 +144,8 @@ try {
   await page.getByLabel(/BYOK · Anthropic/).check();
   await page.getByLabel(/Clave de API/).fill('sk-ant-PRUEBA-NO-REAL-123');
   await page.getByRole('button', { name: 'Guardar en memoria' }).click();
-  const storage = await page.evaluate(() => JSON.stringify({ l: { ...localStorage }, s: { ...sessionStorage }, c: document.cookie }));
-  check('BYOK: la clave NO está en localStorage/sessionStorage/cookies', !storage.includes('sk-ant'), storage);
+  const storage = await page.evaluate(async () => JSON.stringify({ l: { ...localStorage }, s: { ...sessionStorage }, c: document.cookie, idb: (await indexedDB.databases()).map((d) => d.name) }));
+  check('BYOK: la clave NO está en localStorage/sessionStorage/cookies/IndexedDB', !storage.includes('sk-ant') && storage.includes('"idb":[]'), storage);
   check('Indicador de modo cambia a BYOK', (await page.locator('.mode').innerText()).includes('BYOK'));
   await page.locator('textarea.paste').fill((await page.locator('textarea.paste').inputValue()) + '\nContacto: DNI 12345678Z, IBAN ES91 2100 0418 4502 0005 1332.');
   const clausesBefore = await page.locator('.clause').count();
@@ -228,7 +229,7 @@ try {
   check('Accesibilidad: todos los botones y enlaces tienen nombre (escritorio)', unnamedDesk.length === 0, unnamedDesk.join(' | '));
 
   /* ── Modo oscuro ── */
-  const dark = await browser.newContext({ viewport: { width: 1280, height: 720 }, colorScheme: 'dark' });
+  const dark = await browser.newContext({ viewport: { width: 1280, height: 720 }, colorScheme: 'dark', locale: 'es-ES' });
   const dp = await dark.newPage();
   dp.on('pageerror', (e) => consoleErrors.push(String(e)));
   await dp.goto(BASE);
@@ -239,7 +240,7 @@ try {
   await dark.close();
 
   /* ── Móvil (iPhone 13) ── */
-  const mctx = await browser.newContext({ ...devices['iPhone 13'] });
+  const mctx = await browser.newContext({ ...devices['iPhone 13'], locale: 'es-ES' });
   const mp = await mctx.newPage();
   mp.on('console', (m) => m.type() === 'error' && consoleErrors.push(`móvil: ${m.text()}`));
   mp.on('pageerror', (e) => consoleErrors.push(`móvil: ${e}`));
@@ -298,14 +299,14 @@ try {
   check('Tema elegido persiste sin parpadeo (meta antes del primer pintado)', meta === 'dark', `meta=${meta}`);
   check('Solo se guarda la preferencia visual en el navegador', stored === '{"nexo-color-scheme":"dark"}', stored);
   await mp.getByRole('button', { name: 'Más acciones' }).click();
-  check('Móvil: menú «Más» con guía, exportación y reinicio', (await mp.getByRole('menuitem').count()) === 4);
+  check('Móvil: menú «Más» con exportación, idioma, tema, guía y reinicio', (await mp.getByRole('menuitem').count()) === 6);
   await mp.keyboard.press('Escape');
   const unnamedMob = await unnamed(mp);
   check('Accesibilidad: todos los botones y enlaces tienen nombre (móvil)', unnamedMob.length === 0, unnamedMob.join(' | '));
   await mctx.close();
 
   /* ── Guía «Cómo se hace» ── */
-  const g = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+  const g = await browser.newContext({ viewport: { width: 1280, height: 800 }, locale: 'es-ES' });
   const gp = await g.newPage();
   gp.on('console', (m) => m.type() === 'error' && consoleErrors.push(`guía: ${m.text()}`));
   gp.on('pageerror', (e) => consoleErrors.push(`guía: ${e}`));
@@ -318,6 +319,7 @@ try {
   check('Guía: playground redacta PII y detecta inyección en vivo', redOut.includes('[DNI_1]') && !redOut.includes('12345678Z') && /\d+\/100/.test(await gp.locator('.g-score').innerText()) && (await gp.locator('.g-score').getAttribute('class')).includes('is-bad'));
   const v1 = await gp.locator('.g-verdict strong').innerText();
   await gp.getByRole('checkbox', { name: /ENS categoría MEDIA/ }).uncheck();
+  await sleep(300);
   const v2 = await gp.locator('.g-verdict strong').innerText();
   check('Guía: demo de veto cambia Go → No-Go', v1 === 'Go' && v2 === 'No-Go', `${v1} → ${v2}`);
   const roiA = await gp.locator('.g-kpis dd').nth(2).innerText();
@@ -329,7 +331,7 @@ try {
   const imgs = await gp.locator('.g-shot img').evaluateAll((els) => Promise.all(els.map((e) => (e.scrollIntoView(), e.decode().then(() => e.naturalWidth).catch(() => 0)))));
   check('Guía: capturas reales cargan', imgs.length === 3 && imgs.every((w) => w > 0), imgs.join(', '));
   check('Guía: sin desbordamiento en escritorio', (await gp.evaluate(() => document.documentElement.scrollWidth)) <= 1280);
-  const gm = await browser.newContext({ ...devices['iPhone 13'] });
+  const gm = await browser.newContext({ ...devices['iPhone 13'], locale: 'es-ES' });
   const gmp = await gm.newPage();
   await gmp.goto(`${BASE}como-se-hace.html`);
   await gmp.waitForSelector('.g-hero');
@@ -342,6 +344,85 @@ try {
   await gp.waitForSelector('.module');
   check('Guía → demo: el enlace funciona', gp.url() === BASE);
   await g.close();
+
+  /* ── Inglés: idioma por defecto según el navegador, interruptores y persistencia ── */
+  const en = await browser.newContext({ viewport: { width: 1280, height: 720 }, locale: 'en-US', acceptDownloads: true });
+  const ep = await en.newPage();
+  ep.on('console', (m) => m.type() === 'error' && consoleErrors.push(`en: ${m.text()}`));
+  ep.on('pageerror', (e) => consoleErrors.push(`en: ${e}`));
+  await ep.goto(BASE);
+  await ep.waitForSelector('.module');
+  check('EN: el navegador en inglés abre la demo en inglés', (await ep.evaluate(() => document.documentElement.lang)) === 'en' && (await ep.title()).includes('AI consulting desk'));
+  await ep.getByRole('button', { name: 'Show all' }).click();
+  const enSide = await ep.locator('.flow-side').innerText();
+  check('EN M1: traza y comparativa en inglés', /Incident materialised/.test(enSide) && /Read 3 records/.test(enSide) && !/Leídas|Incidente/.test(enSide));
+  await ep.keyboard.press('2');
+  const enVerdict = await ep.locator('.verdict-label').innerText();
+  await ep.getByRole('checkbox', { name: /ENS \(Spanish National Security Framework\) certification, MEDIUM/ }).uncheck();
+  const enWhy = await ep.locator('.verdict-why').innerText();
+  check('EN M2: veredicto y veto explicados en inglés', enVerdict === 'GO' && /No-Go by veto/.test(enWhy), enWhy.slice(0, 60));
+  await ep.keyboard.press('3');
+  check('EN M3: riesgo y controles en inglés', /AI risk exposure index/.test(await ep.locator('.roi-right').innerText()) && (await ep.locator('.tier-value').innerText()) === 'Moderate');
+  const [dlEn] = await Promise.all([
+    ep.waitForEvent('download'),
+    (async () => {
+      await ep.getByRole('button', { name: 'Export One-Pager' }).click();
+      await ep.getByRole('menuitem', { name: /Markdown/ }).click();
+    })(),
+  ]);
+  const mdEnPath = path.join(outDir, 'one-pager-en.md');
+  await dlEn.saveAs(mdEnPath);
+  const mdEn = readFileSync(mdEnPath, 'utf8');
+  check('EN: One-Pager exportado en inglés', mdEn.startsWith('# NEXO-OPS · Executive One-Pager') && mdEn.includes('## 5. Pre-deployment audit checklist') && !/Licitación|Resumen/.test(mdEn));
+  // Cambio de idioma en vivo y persistencia
+  await ep.getByRole('radio', { name: 'Español' }).click();
+  const esNow = await ep.locator('.roi-right').innerText();
+  check('Selector ES/EN cambia toda la interfaz al momento', /Índice de exposición de riesgo IA/.test(esNow) && (await ep.evaluate(() => document.documentElement.lang)) === 'es');
+  await ep.reload();
+  await ep.waitForSelector('.module');
+  check('Idioma elegido persiste al recargar', (await ep.evaluate(() => document.documentElement.lang)) === 'es');
+  await ep.locator('body').press('l');
+  check('Atajo L alterna el idioma', (await ep.evaluate(() => document.documentElement.lang)) === 'en');
+  // Interruptor de tema de dos estados (sistema claro → oscuro → vuelve a sistema sin guardar nada)
+  const themeBtn = ep.locator('.theme-btn');
+  await themeBtn.click();
+  const afterDark = await ep.evaluate(() => [document.querySelector('meta[name="color-scheme"]').content, localStorage.getItem('nexo-color-scheme')].join('|'));
+  await themeBtn.click();
+  const afterBack = await ep.evaluate(() => [document.querySelector('meta[name="color-scheme"]').content, localStorage.getItem('nexo-color-scheme')].join('|'));
+  check('Interruptor de tema: oscuro y vuelta al sistema sin anclar preferencia', afterDark === 'dark|dark' && afterBack === 'light dark|', `${afterDark} → ${afterBack}`);
+  await ep.locator('body').press('t');
+  check('Atajo T alterna el tema', (await ep.evaluate(() => document.querySelector('meta[name="color-scheme"]').content)) === 'dark');
+  const unnamedEn = await unnamed(ep);
+  check('Accesibilidad: todos los botones con nombre (inglés)', unnamedEn.length === 0, unnamedEn.join(' | '));
+  await ep.screenshot({ path: path.join(outDir, 'en-dark.png') });
+  await en.close();
+
+  // Móvil en inglés: idioma y tema desde el menú «More»
+  const emc = await browser.newContext({ ...devices['iPhone 13'], locale: 'en-US' });
+  const emp = await emc.newPage();
+  await emp.goto(BASE);
+  await emp.waitForSelector('.module');
+  await emp.getByRole('button', { name: 'More actions' }).click();
+  await emp.getByRole('menuitem', { name: 'Español' }).click();
+  check('Móvil: cambio de idioma desde el menú «Más»', (await emp.evaluate(() => document.documentElement.lang)) === 'es' && (await emp.locator('.bottom-nav').innerText()).includes('Flujos'));
+  await emp.getByRole('button', { name: 'Más acciones' }).click();
+  await emp.getByRole('menuitem', { name: 'Modo oscuro' }).click();
+  check('Móvil: modo oscuro desde el menú «Más»', (await emp.evaluate(() => document.querySelector('meta[name="color-scheme"]').content)) === 'dark');
+  await emc.close();
+
+  // Guía en inglés
+  const ge = await browser.newContext({ viewport: { width: 1280, height: 800 }, locale: 'en-US' });
+  const gep = await ge.newPage();
+  gep.on('pageerror', (e) => consoleErrors.push(`guide en: ${e}`));
+  await gep.goto(`${BASE}como-se-hace.html`);
+  await gep.waitForSelector('.g-hero');
+  const geHero = await gep.locator('.g-hero h1').innerText();
+  const geOut = await gep.locator('.g-out-safe').innerText();
+  const geSignals = await gep.locator('.g-signals').innerText();
+  check('Guía en inglés con demo en vivo (homóglifo detectado)', /CISO can’t tear apart/.test(geHero) && geOut.includes('[DNI_1]') && /Homoglyphs/.test(geSignals));
+  await gep.getByRole('radio', { name: 'Español' }).click();
+  check('Guía: selector de idioma', /no pueda desmontar/.test(await gep.locator('.g-hero h1').innerText()));
+  await ge.close();
 
   // Los únicos errores admitidos son los fallos de red provocados a propósito (401 simulado y Ollama caído).
   const expected = /Failed to load resource: (the server responded with a status of 401|net::ERR_CONNECTION_REFUSED|net::ERR_FAILED)/;

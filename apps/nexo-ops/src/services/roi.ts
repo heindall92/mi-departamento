@@ -13,6 +13,12 @@ export const HITL_ASSUMPTIONS: Record<AutonomyLevel, { reviewedShare: number; re
   autonomo: { reviewedShare: 0.08, reviewTimeShare: 0.35, label: 'solo excepciones: 8 % de los casos (35 % del tiempo manual)' },
 };
 
+export const HITL_LABEL_EN: Record<AutonomyLevel, string> = {
+  asistido: 'a human validates 100% of proposals (20% of manual time)',
+  semiautonomo: '25% of cases exceed the threshold and are reviewed (30% of manual time)',
+  autonomo: 'exceptions only: 8% of cases (35% of manual time)',
+};
+
 export const DEFAULT_ROI: RoiInputs = {
   monthlyVolume: 12_000,
   manualMinutesPerItem: 9,

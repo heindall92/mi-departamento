@@ -62,6 +62,7 @@
 }
 @media (pointer: coarse) {
   :root { --target: 44px; }
+  .segmented button { min-height: var(--target); }
 }
 
 * { box-sizing: border-box; }
@@ -111,16 +112,8 @@ svg { flex: none; }
 
 /* ───────────── Movimiento ─────────────
    Solo estados: entrada de eventos en la traza, materialización del veredicto, presión de botones.
-   Nada se anima al cambiar de módulo con el teclado (se usa cientos de veces). */
-.enter {
-  transition: opacity 240ms var(--ease-out), transform 240ms var(--ease-out);
-  @starting-style { opacity: 0; transform: translateY(6px); }
-}
-.swap {
-  display: inline-block;
-  transition: opacity 220ms var(--ease-out), filter 220ms var(--ease-out), transform 220ms var(--ease-out);
-  @starting-style { opacity: 0.2; filter: blur(3px); transform: scale(0.97); }
-}
+   Las entradas usan Web Animations (src/utils/motion.ts) para no repetirse al cambiar de pestaña. */
+.swap { display: inline-block; }
 
 /* ───────────── Shell ───────────── */
 .app { min-height: 100dvh; display: flex; flex-direction: column; }
@@ -403,7 +396,7 @@ input[type='range'] { width: 100%; min-height: 24px; }
 .tl-chev { color: var(--muted); transition: transform 200ms var(--ease-out); }
 .tl-head[aria-expanded='true'] .tl-chev { transform: rotate(180deg); }
 .tl-decision { font-size: 0.85rem; color: var(--ink-2); margin: 0 0 0.5rem; }
-.tl-detail { border-top: 1px solid var(--line); padding: 0.6rem 0 0.4rem; transition: opacity 200ms var(--ease-out); @starting-style { opacity: 0; } }
+.tl-detail { border-top: 1px solid var(--line); padding: 0.6rem 0 0.4rem; }
 
 /* ───────────── Módulo 2 ───────────── */
 .tender-grid { display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 0.8rem; align-items: start; }
@@ -535,7 +528,7 @@ blockquote { margin: 0.25rem 0 0; padding: 0.35rem 0.6rem; border: 1px solid var
   @starting-style { opacity: 0; transform: scale(0.96); }
 }
 .modal::backdrop { background: rgb(8 12 18 / 0.5); transition: opacity 200ms ease; @starting-style { opacity: 0; } }
-.modal form { padding: 1rem 1.1rem; display: flex; flex-direction: column; gap: 0.8rem; }
+.modal-body { padding: 1rem 1.1rem; display: flex; flex-direction: column; gap: 0.8rem; }
 .modal-head, .modal-foot { display: flex; justify-content: space-between; align-items: center; }
 .modal-foot { justify-content: flex-end; gap: 0.5rem; }
 .sheet-grabber { display: none; }
@@ -548,7 +541,10 @@ blockquote { margin: 0.25rem 0 0; padding: 0.35rem 0.6rem; border: 1px solid var
 .fields { display: grid; gap: 0.5rem; }
 .appearance { border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 0.55rem 0.7rem 0.6rem; margin: 0; }
 .appearance legend { font-size: 0.82rem; font-weight: 600; padding: 0 0.3rem; }
-.appearance p { margin: 0.4rem 0 0; }
+.prefs { display: grid; grid-template-columns: 1fr auto; gap: 0.6rem; align-items: start; }
+.prefs > p { grid-column: 1 / -1; margin: 0; }
+.lang-switch { flex-wrap: nowrap; }
+.lang-switch button { min-width: 2.4rem; justify-content: center; font-weight: 600; letter-spacing: 0.04em; }
 
 @media (max-width: 1440px) {
   .brand-sub { display: none; }
@@ -640,7 +636,7 @@ blockquote { margin: 0.25rem 0 0; padding: 0.35rem 0.6rem; border: 1px solid var
   .sliders-2, .gov-controls { grid-template-columns: 1fr; }
   .gov-controls > * { min-width: 0; }
   .gov-controls .segmented { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; }
-  .gov-controls .segmented button { justify-content: center; white-space: normal; text-align: center; line-height: 1.2; min-height: 40px; }
+  .gov-controls .segmented button { justify-content: center; white-space: normal; text-align: center; line-height: 1.2; min-height: var(--target); }
   .risk-head { flex-direction: column; }
   .tier { flex-direction: row; gap: 0.6rem; justify-content: flex-start; min-width: 0; }
   .matrix-row { grid-template-columns: 72px repeat(3, minmax(0, 1fr)); }
@@ -657,6 +653,7 @@ blockquote { margin: 0.25rem 0 0; padding: 0.35rem 0.6rem; border: 1px solid var
   }
   .sheet-grabber { display: block; width: 40px; height: 5px; border-radius: 3px; background: var(--line-2); margin: -0.3rem auto 0; }
   .modal-foot .btn { flex: 1; min-height: 46px; }
+  .prefs { grid-template-columns: 1fr; }
 }
 @media (max-width: 360px) {
   .scenario-picker button { font-size: 0.78rem; padding-inline: 0.3rem; }

@@ -1,5 +1,6 @@
 import { Check, Copy } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
+import { useLang } from '../i18n/lang';
 
 /** Extrae una región `// #region guia:<name>` del código fuente real (importado con ?raw). */
 export function excerpt(src: string, name: string): string {
@@ -38,8 +39,10 @@ function highlight(code: string): ReactNode[] {
   return out;
 }
 
-export function CodeBlock({ code, file, lang = 'ts' }: { code: string; file?: string; lang?: 'ts' | 'sh' | 'txt' }) {
+export function CodeBlock({ code, file, lang: kind = 'ts' }: { code: string; file?: string; lang?: 'ts' | 'sh' | 'txt' }) {
   const [copied, setCopied] = useState(false);
+  const [lang] = useLang();
+  const L = (es: string, en: string) => (lang === 'en' ? en : es);
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(code);
@@ -52,14 +55,14 @@ export function CodeBlock({ code, file, lang = 'ts' }: { code: string; file?: st
   return (
     <figure className="code">
       <figcaption>
-        <span className="code-file">{file ?? (lang === 'sh' ? 'terminal' : lang === 'txt' ? 'prompt' : 'TypeScript')}</span>
-        <button type="button" className="copy" onClick={copy} aria-label={copied ? 'Copiado' : 'Copiar código'}>
+        <span className="code-file">{file ?? (kind === 'sh' ? 'terminal' : kind === 'txt' ? 'prompt' : 'TypeScript')}</span>
+        <button type="button" className="copy" onClick={copy} aria-label={copied ? L('Copiado', 'Copied') : L('Copiar código', 'Copy code')}>
           {copied ? <Check size={15} aria-hidden="true" /> : <Copy size={15} aria-hidden="true" />}
-          <span>{copied ? 'Copiado' : 'Copiar'}</span>
+          <span>{copied ? L('Copiado', 'Copied') : L('Copiar', 'Copy')}</span>
         </button>
       </figcaption>
       <pre tabIndex={0}>
-        <code>{lang === 'ts' ? highlight(code) : code}</code>
+        <code>{kind === 'ts' ? highlight(code) : code}</code>
       </pre>
     </figure>
   );

@@ -26,7 +26,7 @@ for (let i = 0; i < 60; i++) {
 const browser = await chromium.launch();
 try {
   // Escritorio: prompt injection sin guardrails, flujo completo, nodo CRM seleccionado.
-  let ctx = await browser.newContext({ viewport: { width: 1280, height: 720 }, deviceScaleFactor: 1, colorScheme: 'light' });
+  let ctx = await browser.newContext({ viewport: { width: 1280, height: 720 }, deviceScaleFactor: 1, colorScheme: 'light', locale: 'es-ES' });
   let p = await ctx.newPage();
   await p.goto(BASE);
   await p.getByRole('button', { name: 'Ver todo' }).click();
@@ -36,7 +36,7 @@ try {
   await ctx.close();
 
   // Móvil claro: línea de tiempo con la consulta CRM desplegada.
-  ctx = await browser.newContext({ ...devices['iPhone 13'], colorScheme: 'light' });
+  ctx = await browser.newContext({ ...devices['iPhone 13'], colorScheme: 'light', locale: 'es-ES' });
   p = await ctx.newPage();
   await p.goto(BASE);
   await p.getByRole('button', { name: 'Ver todo' }).click();
@@ -48,7 +48,7 @@ try {
   await ctx.close();
 
   // Móvil oscuro: licitaciones con el veredicto fijo arriba.
-  ctx = await browser.newContext({ ...devices['iPhone 13'], colorScheme: 'dark' });
+  ctx = await browser.newContext({ ...devices['iPhone 13'], colorScheme: 'dark', locale: 'es-ES' });
   p = await ctx.newPage();
   await p.goto(BASE);
   await p.locator('.bottom-nav .tab').nth(1).click();

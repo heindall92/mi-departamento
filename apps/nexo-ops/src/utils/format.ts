@@ -1,17 +1,24 @@
-const eur0 = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 });
-const eur2 = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2, maximumFractionDigits: 2 });
-const num0 = new Intl.NumberFormat('es-ES', { maximumFractionDigits: 0 });
-const num1 = new Intl.NumberFormat('es-ES', { maximumFractionDigits: 1 });
+/** Formatos numéricos según idioma. El motor no conoce React: el idioma se fija aquí. */
+let locale = 'es-ES';
+let cache: Record<string, Intl.NumberFormat> = {};
+export function setFormatLocale(lang: 'es' | 'en') {
+  const next = lang === 'en' ? 'en-IE' : 'es-ES'; // en-IE: inglés con euro y formato europeo
+  if (next !== locale) {
+    locale = next;
+    cache = {};
+  }
+}
+const nf = (key: string, opts: Intl.NumberFormatOptions) => (cache[key] ??= new Intl.NumberFormat(locale, opts));
 
-export const fmtEur = (n: number) => eur0.format(Math.round(n));
-export const fmtEur2 = (n: number) => eur2.format(n);
-export const fmtNum = (n: number) => num0.format(n);
-export const fmtNum1 = (n: number) => num1.format(n);
-export const fmtPct = (n: number) => `${num0.format(n)} %`;
+export const fmtEur = (n: number) => nf('e0', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(Math.round(n));
+export const fmtEur2 = (n: number) => nf('e2', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
+export const fmtNum = (n: number) => nf('n0', { maximumFractionDigits: 0 }).format(n);
+export const fmtNum1 = (n: number) => nf('n1', { maximumFractionDigits: 1 }).format(n);
+export const fmtPct = (n: number) => (locale === 'es-ES' ? `${fmtNum(n)} %` : `${fmtNum(n)}%`);
 
 export function fmtMs(ms: number): string {
-  if (ms >= 60_000) return `${num1.format(ms / 60_000)} min`;
-  if (ms >= 1000) return `${num1.format(ms / 1000)} s`;
+  if (ms >= 60_000) return `${fmtNum1(ms / 60_000)} min`;
+  if (ms >= 1000) return `${fmtNum1(ms / 1000)} s`;
   return `${Math.round(ms)} ms`;
 }
 

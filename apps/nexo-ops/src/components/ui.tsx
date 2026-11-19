@@ -1,15 +1,16 @@
 import type { LucideIcon } from 'lucide-react';
 import { CircleCheck, ShieldCheck, ShieldX, TriangleAlert, UserRoundCheck } from 'lucide-react';
 import type { ReactNode } from 'react';
+import { useLang } from '../i18n/lang';
 import type { ComplianceState, RiskTier, TraceStatus, Verdict } from '../types/domain';
 
 /** Estados siempre con icono + texto: nunca solo color (regla 07 de accesibilidad). */
-const STATUS: Record<TraceStatus, { label: string; short: string; Icon: LucideIcon; tone: string }> = {
-  ok: { label: 'OK', short: 'OK', Icon: CircleCheck, tone: 'good' },
-  warning: { label: 'Aviso', short: 'Aviso', Icon: TriangleAlert, tone: 'warn' },
-  blocked: { label: 'Bloqueado', short: 'Bloqueado', Icon: ShieldCheck, tone: 'good' },
-  escalated: { label: 'Escalado a humano', short: 'HITL', Icon: UserRoundCheck, tone: 'info' },
-  leak: { label: 'Fuga / daño', short: 'Fuga', Icon: ShieldX, tone: 'bad' },
+const STATUS: Record<TraceStatus, { label: [string, string]; short: [string, string]; Icon: LucideIcon; tone: string }> = {
+  ok: { label: ['OK', 'OK'], short: ['OK', 'OK'], Icon: CircleCheck, tone: 'good' },
+  warning: { label: ['Aviso', 'Warning'], short: ['Aviso', 'Warning'], Icon: TriangleAlert, tone: 'warn' },
+  blocked: { label: ['Bloqueado', 'Blocked'], short: ['Bloqueado', 'Blocked'], Icon: ShieldCheck, tone: 'good' },
+  escalated: { label: ['Escalado a humano', 'Escalated to human'], short: ['HITL', 'HITL'], Icon: UserRoundCheck, tone: 'info' },
+  leak: { label: ['Fuga / daño', 'Leak / damage'], short: ['Fuga', 'Leak'], Icon: ShieldX, tone: 'bad' },
 };
 
 export function statusTone(s: TraceStatus) {
@@ -17,18 +18,22 @@ export function statusTone(s: TraceStatus) {
 }
 
 export function StatusBadge({ status, compact = false }: { status: TraceStatus; compact?: boolean }) {
+  const [lang] = useLang();
+  const i = lang === 'en' ? 1 : 0;
   const s = STATUS[status];
   return (
-    <span className={`badge tone-${s.tone}`} title={s.label}>
+    <span className={`badge tone-${s.tone}`} title={s.label[i]}>
       <s.Icon size={13} strokeWidth={2.25} aria-hidden="true" />
-      {compact ? s.short : s.label}
+      {compact ? s.short[i] : s.label[i]}
     </span>
   );
 }
 
 const COMPLIANCE_TONE: Record<ComplianceState, string> = { Cumple: 'good', Mitigado: 'info', Incumple: 'bad' };
+const COMPLIANCE_EN: Record<ComplianceState, string> = { Cumple: 'Compliant', Mitigado: 'Mitigated', Incumple: 'Non-compliant' };
 export function ComplianceBadge({ value }: { value: ComplianceState }) {
-  return <span className={`badge badge-outline tone-${COMPLIANCE_TONE[value]}`}>{value}</span>;
+  const [lang] = useLang();
+  return <span className={`badge badge-outline tone-${COMPLIANCE_TONE[value]}`}>{lang === 'en' ? COMPLIANCE_EN[value] : value}</span>;
 }
 
 const VERDICT_TONE: Record<Verdict, string> = { Go: 'good', Revisar: 'warn', 'No-Go': 'bad' };

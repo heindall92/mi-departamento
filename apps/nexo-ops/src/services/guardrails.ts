@@ -27,13 +27,13 @@ export interface PiiMatch {
 const DNI_LETTERS = 'TRWAGMYFPDXBNJZSQVHLCKE';
 
 export function isValidDni(dni: string): boolean {
-  const m = /^(\d{8})([A-Z])$/.exec(dni.toUpperCase());
+  const m = /^(\d{8})([A-Z])$/.exec(dni.toUpperCase().replace(/[\s-]/g, ''));
   if (!m) return false;
   return DNI_LETTERS[Number(m[1]) % 23] === m[2];
 }
 
 export function isValidNie(nie: string): boolean {
-  const m = /^([XYZ])(\d{7})([A-Z])$/.exec(nie.toUpperCase());
+  const m = /^([XYZ])(\d{7})([A-Z])$/.exec(nie.toUpperCase().replace(/[\s-]/g, ''));
   if (!m) return false;
   const prefix = { X: '0', Y: '1', Z: '2' }[m[1] as 'X' | 'Y' | 'Z'];
   return DNI_LETTERS[Number(prefix + m[2]) % 23] === m[3];
@@ -79,13 +79,15 @@ interface Detector {
 
 // Orden importante: IBAN y tarjeta antes que teléfono (evita solapes).
 const DETECTORS: Detector[] = [
-  { type: 'IBAN', re: /\b[A-Z]{2}\d{2}(?:[ ]?[A-Z0-9]{4}){4,7}(?:[ ]?[A-Z0-9]{1,3})?\b/g, validate: isValidIban },
+  // Mayúsculas o minúsculas, con o sin espacios: el checksum mod-97 descarta falsos positivos.
+  { type: 'IBAN', re: /\b[A-Z]{2}\d{2}(?:[ ]?[A-Z0-9]{4}){4,7}(?:[ ]?[A-Z0-9]{1,3})?\b/gi, validate: isValidIban },
   // Tarjetas: IIN real empieza por 2-6 (Mastercard, Visa, Amex, Discover…).
   { type: 'TARJETA', re: /\b[2-6](?:[ -]?\d){12,18}\b/g, validate: isValidLuhn },
-  { type: 'NIE', re: /\b[XYZ]\d{7}[A-Z]\b/gi, validate: isValidNie },
-  { type: 'DNI', re: /\b\d{8}[A-Z]\b/gi, validate: isValidDni },
+  { type: 'NIE', re: /\b[XYZ][ -]?\d{7}[ -]?[A-Z]\b/gi, validate: isValidNie },
+  { type: 'DNI', re: /\b\d{8}[ -]?[A-Z]\b/gi, validate: isValidDni },
   { type: 'EMAIL', re: /\b[\w.+-]+@[\w-]+(?:\.[\w-]+)+\b/g },
-  { type: 'TELEFONO', re: /(?:\+34[ ]?)?\b[6789]\d{2}[ ]?\d{3}[ ]?\d{3}\b/g },
+  // 612 345 678 · 612-345-678 · 612 34 56 78 · +34 612345678
+  { type: 'TELEFONO', re: /(?:\+34[ -]?)?\b[6789]\d{2}(?:[ -]?\d{3}[ -]?\d{3}|[ -]?\d{2}[ -]?\d{2}[ -]?\d{2})\b/g },
 ];
 
 export function detectPii(text: string): PiiMatch[] {
@@ -160,28 +162,66 @@ export interface InjectionReport {
   sanitized: string;
 }
 
-const INJECTION_RULES: Array<{ rule: string; re: RegExp; weight: number }> = [
-  { rule: 'Orden de anular instrucciones', re: /(ignora|olvida|omite)\s+(todas\s+)?(las\s+)?(instrucciones|indicaciones|reglas)(\s+anteriores)?/i, weight: 45 },
-  { rule: 'Orden de anular instrucciones (EN)', re: /ignore\s+(all\s+)?(previous|prior|above)\s+instructions/i, weight: 45 },
-  { rule: 'Suplantación de rol del sistema', re: /(^|\n|<!--)\s*(system|sistema)\s*:/i, weight: 30 },
-  { rule: 'Cambio de identidad del agente', re: /\b(ahora\s+eres|eres\s+ahora|act[uú]a\s+como|you\s+are\s+now)\b/i, weight: 25 },
-  { rule: 'Contenido oculto (comentario HTML)', re: /<!--[\s\S]*?-->/, weight: 20 },
-  { rule: 'Invocación de herramienta desde el texto del cliente', re: /\b(crm|db|api|tool)\.[a-z_]+\s*\(/i, weight: 30 },
-  { rule: 'Petición de datos de terceros', re: /\b(otros?\s+clientes?|todos\s+los\s+clientes|cliente\s+C-\d+)/i, weight: 20 },
-  { rule: 'Exfiltración de prompt', re: /(revela|muestra|imprime)\s+(tu|el)\s+(prompt|instrucciones\s+de\s+sistema)/i, weight: 35 },
-  { rule: 'Caracteres invisibles', re: /[​-‏⁠﻿]/, weight: 15 },
+/**
+ * Normalización antes de buscar patrones: sin ella, una «о» cirílica en «ignоre»
+ * o un carácter invisible entre letras basta para esquivar las reglas.
+ * Sigue siendo heurístico: es defensa en profundidad, no la barrera principal.
+ */
+const INVISIBLE = /[\u00AD\u180E\u200B-\u200F\u202A-\u202E\u2060-\u2064\u2066-\u2069\uFEFF]|\uDB40[\uDC00-\uDC7F]/g;
+const HOMOGLYPHS: Record<string, string> = {
+  а: 'a', е: 'e', о: 'o', р: 'p', с: 'c', у: 'y', х: 'x', і: 'i', ј: 'j', ѕ: 's', ԁ: 'd', ɡ: 'g', һ: 'h', ӏ: 'l', ԛ: 'q', ԝ: 'w',
+  А: 'A', В: 'B', Е: 'E', К: 'K', М: 'M', Н: 'H', О: 'O', Р: 'P', С: 'C', Т: 'T', Х: 'X', У: 'Y', І: 'I',
+  α: 'a', ο: 'o', ν: 'v', ρ: 'p', τ: 't', ι: 'i', κ: 'k', Α: 'A', Β: 'B', Ε: 'E', Ι: 'I', Κ: 'K', Μ: 'M', Ν: 'N', Ο: 'O', Ρ: 'P', Τ: 'T', Χ: 'X',
+};
+const HOMOGLYPH_RE = new RegExp(`[${Object.keys(HOMOGLYPHS).join('')}]`, 'g');
+
+export function normalizeForDetection(text: string): { text: string; invisible: number; homoglyphs: number } {
+  const invisible = (text.match(INVISIBLE) ?? []).length;
+  const nfkc = text.normalize('NFKC').replace(INVISIBLE, '');
+  let homoglyphs = 0;
+  // Solo se sustituyen dentro de palabras que mezclan alfabetos (no se toca el texto cirílico legítimo).
+  const out = nfkc.replace(/\S+/g, (w) => {
+    if (!/[A-Za-z]/.test(w) || !HOMOGLYPH_RE.test(w)) {
+      HOMOGLYPH_RE.lastIndex = 0;
+      return w;
+    }
+    HOMOGLYPH_RE.lastIndex = 0;
+    return w.replace(HOMOGLYPH_RE, (c) => {
+      homoglyphs++;
+      return HOMOGLYPHS[c]!;
+    });
+  });
+  return { text: out, invisible, homoglyphs };
+}
+
+const INJECTION_RULES: Array<{ es: string; en: string; re: RegExp; weight: number }> = [
+  { es: 'Orden de anular instrucciones', en: 'Instruction override', re: /(ignora|olvida|omite)\s+(todas\s+)?(las\s+)?(instrucciones|indicaciones|reglas)(\s+anteriores)?|ignore\s+(all\s+)?(the\s+)?(previous|prior|above|earlier)\s+(instructions|rules)|disregard\s+(all\s+)?(previous|prior|above)/i, weight: 45 },
+  { es: 'Suplantación de rol del sistema', en: 'System role impersonation', re: /(^|\n|<!--)\s*(system|sistema)\s*:/i, weight: 30 },
+  { es: 'Cambio de identidad del agente', en: 'Agent identity change', re: /\b(ahora\s+eres|eres\s+ahora|act[uú]a\s+como|you\s+are\s+now|act\s+as|pretend\s+to\s+be)\b/i, weight: 25 },
+  { es: 'Contenido oculto (comentario HTML)', en: 'Hidden content (HTML comment)', re: /<!--[\s\S]*?-->/, weight: 20 },
+  { es: 'Invocación de herramienta desde el texto del cliente', en: 'Tool invocation from customer text', re: /\b(crm|db|api|tool)\.[a-z_]+\s*\(/i, weight: 30 },
+  { es: 'Petición de datos de terceros', en: 'Request for third-party data', re: /\b(otros?\s+clientes?|todos\s+los\s+clientes|cliente\s+C-\d+|other\s+customers?|all\s+customers|customer\s+C-\d+)/i, weight: 20 },
+  { es: 'Exfiltración de prompt', en: 'Prompt exfiltration', re: /(revela|muestra|imprime)\s+(tu|el)\s+(prompt|instrucciones\s+de\s+sistema)|(reveal|show|print|repeat)\s+(your|the)\s+(system\s+)?(prompt|instructions)/i, weight: 35 },
 ];
 
-export function detectInjection(text: string): InjectionReport {
+export function detectInjection(text: string, lang: 'es' | 'en' = 'es'): InjectionReport {
+  const norm = normalizeForDetection(text);
   const signals: InjectionSignal[] = [];
+  const label = (r: { es: string; en: string }) => (lang === 'en' ? r.en : r.es);
   for (const r of INJECTION_RULES) {
-    const m = r.re.exec(text);
-    if (m) signals.push({ rule: r.rule, excerpt: m[0].trim().slice(0, 80), weight: r.weight });
+    const m = r.re.exec(norm.text);
+    if (m) signals.push({ rule: label(r), excerpt: m[0].trim().slice(0, 80), weight: r.weight });
+  }
+  if (norm.invisible) {
+    signals.push({ rule: label({ es: 'Caracteres invisibles o de control (bidi, etiquetas)', en: 'Invisible or control characters (bidi, tags)' }), excerpt: `×${norm.invisible}`, weight: 15 });
+  }
+  if (norm.homoglyphs) {
+    signals.push({ rule: label({ es: 'Homóglifos: alfabetos mezclados en una palabra', en: 'Homoglyphs: mixed scripts in one word' }), excerpt: `×${norm.homoglyphs}`, weight: 20 });
   }
   const score = Math.min(100, signals.reduce((s, x) => s + x.weight, 0));
   const sanitized = text
-    .replace(/<!--[\s\S]*?-->/g, '[contenido oculto eliminado]')
-    .replace(/[​-‏⁠﻿]/g, '')
+    .replace(/<!--[\s\S]*?-->/g, lang === 'en' ? '[hidden content removed]' : '[contenido oculto eliminado]')
+    .replace(INVISIBLE, '')
     .trim();
   return { score, suspicious: score >= 40, signals, sanitized };
 }
@@ -224,12 +264,19 @@ export type PolicyDecision =
   | { kind: 'escalate_hitl'; amountEur: number; reason: string };
 
 // #region guia:policy
-export function evaluateCompensation(amountEur: number, policy: CompensationPolicy = DEFAULT_POLICY): PolicyDecision {
+export function evaluateCompensation(amountEur: number, policy: CompensationPolicy = DEFAULT_POLICY, lang: 'es' | 'en' = 'es'): PolicyDecision {
+  const en = lang === 'en';
+  // Importes no positivos o no numéricos nunca se aprueban solos.
+  if (!Number.isFinite(amountEur) || amountEur <= 0) {
+    return { kind: 'escalate_hitl', amountEur, reason: en ? 'Invalid amount: requires human review' : 'Importe no válido: requiere revisión humana' };
+  }
   if (amountEur <= policy.autoApproveLimitEur) return { kind: 'auto_approve', amountEur };
   return {
     kind: 'escalate_hitl',
     amountEur,
-    reason: `Importe ${amountEur.toFixed(2)} € > límite de aprobación automática (${policy.autoApproveLimitEur} €)`,
+    reason: en
+      ? `Amount €${amountEur.toFixed(2)} > automatic approval limit (€${policy.autoApproveLimitEur})`
+      : `Importe ${amountEur.toFixed(2)} € > límite de aprobación automática (${policy.autoApproveLimitEur} €)`,
   };
 }
 // #endregion guia:policy

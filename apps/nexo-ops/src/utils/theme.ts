@@ -75,3 +75,21 @@ export function useMediaQuery(q: string): boolean {
 }
 
 export const MOBILE_QUERY = '(max-width: 760px)';
+
+/** Esquema que se está viendo ahora (preferencia guardada o, si no hay, la del sistema). */
+export function renderedScheme(): 'light' | 'dark' {
+  const p = readPref();
+  if (p !== 'system') return p;
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+
+/**
+ * Interruptor de dos estados (modern-web-guidance · dark-mode-toggle):
+ * el destino es lo contrario de lo que se VE; si coincide con el sistema,
+ * se borra la preferencia en lugar de fijarla, para no anclar el tema sin querer.
+ */
+export function toggleScheme() {
+  const target = renderedScheme() === 'dark' ? 'light' : 'dark';
+  const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  setPref(target === (systemDark ? 'dark' : 'light') ? 'system' : target);
+}

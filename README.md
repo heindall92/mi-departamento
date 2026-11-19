@@ -8,7 +8,7 @@
 
 ### Proyecto: NEXO-OPS
 
-🔗 **[Probar NEXO-OPS en vivo](https://heindall92.github.io/mi-departamento/nexo-ops/)** — mesa de consultoría en IA agéntica: simulador de flujos CX/CRM con «Modo Caos» y guardrails, motor Go/No-Go de licitaciones y ROI operativo con gobernanza IA (ISO 42001 / EU AI Act). 100 % en el navegador. Cómo está hecho, con demos en vivo: **[Cómo se hace](https://heindall92.github.io/mi-departamento/nexo-ops/como-se-hace.html)**. Código y documentación en [`apps/nexo-ops/`](apps/nexo-ops/README.md); el build publicado está en [`nexo-ops/`](nexo-ops/).
+🔗 **[Probar NEXO-OPS en vivo](https://heindall92.github.io/mi-departamento/nexo-ops/)** — mesa de consultoría en IA agéntica: simulador de flujos CX/CRM con «Modo Caos» y guardrails, motor Go/No-Go de licitaciones y ROI operativo con gobernanza IA (ISO 42001 / EU AI Act). 100 % en el navegador, en español e inglés, escritorio y móvil. Cómo está hecho, con demos en vivo: **[Cómo se hace](https://heindall92.github.io/mi-departamento/nexo-ops/como-se-hace.html)**. Código y documentación en [`apps/nexo-ops/`](apps/nexo-ops/README.md); el build publicado está en [`nexo-ops/`](nexo-ops/).
 
 ## Qué hay en la página
 

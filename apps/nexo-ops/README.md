@@ -1,10 +1,11 @@
 # NEXO-OPS · Mesa interactiva de consultoría en IA agéntica, CX/CRM y licitaciones
 
-**▶ [Probar demo en vivo](https://heindall92.github.io/mi-departamento/nexo-ops/)** — un clic, sin instalar nada, sin cuenta, sin enviar datos. Escritorio y móvil, claro y oscuro.
+**▶ [Probar demo en vivo](https://heindall92.github.io/mi-departamento/nexo-ops/)** — un clic, sin instalar nada, sin cuenta, sin enviar datos. Escritorio y móvil · claro y oscuro · español e inglés.
 **📖 [Cómo se hace](https://heindall92.github.io/mi-departamento/nexo-ops/como-se-hace.html)** — la guía del proyecto, con demos en vivo y el código real.
 Simulador de agentes con «Modo Caos» y guardrails · Motor Go/No-Go de pliegos · ROI operativo + riesgo IA (ISO 42001 / EU AI Act).
 
 > Autor: Yoandy Ramírez Delgado · v1.0 · Escenarios y datos 100 % ficticios · Indicadores orientativos, no asesoramiento jurídico.
+> Las menciones al «roadmap» se refieren al documento de especificación del autor (*Roadmap técnico y funcional NEXO-OPS*), que no se publica en este repositorio.
 
 ---
 
@@ -29,7 +30,16 @@ Cierra con **Exportar One-Pager** (PDF A4 de una página o Markdown con diagrama
 
 Guion del vídeo de 60–90 s y preguntas difíciles frecuentes: [`docs/GUION-DEMO.md`](docs/GUION-DEMO.md).
 
-Atajos: `1` `2` `3` cambian de módulo · `G` alterna guardrails.
+Atajos: `1` `2` `3` cambian de módulo · `G` alterna guardrails · `T` tema claro/oscuro · `L` español/inglés.
+
+## Dos idiomas, una lógica
+
+Español e inglés completos: interfaz, escenarios, frases que generan los motores, One-Pager (PDF y Markdown), errores de la IA y la guía. El idioma inicial sigue al navegador; se cambia con el selector `ES | EN`, la tecla `L` o, en móvil, el menú «Más», y se recuerda.
+
+- Los motores son puros y reciben `lang` como parámetro; las traducciones son una **capa de textos** sobre los mismos objetos (`flowSteps(lang)`, `tenderScenarios(lang)`…), así que estructura, importes y reglas no pueden divergir.
+- `src/i18n/parity.test.ts` lo demuestra: para cada escenario, ES y EN producen los mismos estados, latencias, cifras y veredictos, y ningún texto en inglés contiene palabras funcionales del español.
+- El analizador de pliegos entiende pliegos en español y en inglés (`plazo de ejecución` / `execution period`, `excluyente` / `exclusionary`…).
+- Los números siguen el idioma (`12.000 €` / `€12,000`).
 
 ## Diseño: escritorio y móvil
 
@@ -41,9 +51,10 @@ No es la misma interfaz encogida: es otra composición sobre el mismo estado.
 | Flujo CX/CRM | Seis carriles por actor + inspector + traza lateral | Línea de tiempo vertical; el detalle se despliega en su sitio |
 | Reproducción | Barra de herramientas | Dock flotante sobre la navegación, botones ≥ 48 px |
 | Veredicto Go/No-Go | Tarjeta en la columna lateral | Píldora fija arriba: se ve el efecto de cada cambio sin subir |
+| Tema e idioma | Interruptores en la barra superior (atajos `T` y `L`) | Dentro del menú «Más» |
 | Ajustes | Diálogo centrado | Hoja inferior (curva *drawer* de iOS) con cierre tocando fuera |
 
-Base visual: IBM Plex autoalojada, iconos Lucide (nada de emojis como iconos), tokens `light-dark()` con modo oscuro que sigue al sistema y se puede fijar en Ajustes sin parpadeo (script externo, compatible con la CSP). Movimiento solo para estados, con curvas *ease-out* fuertes, presión de botones a 0,97, sin animaciones en acciones de teclado y respetando «reducir movimiento», «reducir transparencia» y «más contraste».
+Base visual: IBM Plex autoalojada, iconos Lucide (nada de emojis como iconos), tokens `light-dark()` con modo oscuro que sigue al sistema y se puede fijar en Ajustes sin parpadeo (script externo, compatible con la CSP). Movimiento solo para estados (entradas con Web Animations que se ejecutan una vez, para no repetirse al volver a una pestaña), con curvas *ease-out* fuertes, presión de botones a 0,97, sin animaciones en acciones de teclado y respetando «reducir movimiento», «reducir transparencia» y «más contraste».
 
 Guías aplicadas (detalle en la [página «Cómo se hace»](https://heindall92.github.io/mi-departamento/nexo-ops/como-se-hace.html#creditos)): [Emil Kowalski](https://github.com/emilkowalski/skills) (motion y Apple design), [Impeccable](https://github.com/pbakaus/impeccable) (craft floor), [Modern Web Guidance](https://github.com/GoogleChrome/modern-web-guidance) (modo oscuro, diálogo, formato del dispositivo), [dashboard-design](https://github.com/abdiraimov-otabek/dashboard-design-skill) (números y estados) y [Elephant-Goldfish](https://github.com/google/elephant-goldfish-model) (revisión con ojos nuevos).
 
@@ -75,7 +86,7 @@ apps/nexo-ops/                 ← código fuente (este directorio)
 ../../nexo-ops/                ← build estático publicado en GitHub Pages
 ```
 
-Stack: React 19 + TypeScript estricto + Vite 7. **Sin librerías de UI ni de gráficos** (regla 07): la curva de caja es SVG nativo y el tablero es CSS Grid. Fuentes del sistema: ni Google Fonts.
+Stack: React 19 + TypeScript estricto + Vite 7. **Sin librerías de UI ni de gráficos** (regla 07): la curva de caja es SVG nativo y el tablero es CSS Grid. Tipografía IBM Plex autoalojada (@fontsource): ni Google Fonts ni CDN.
 
 ### Decisiones que conviene conocer
 
@@ -92,11 +103,16 @@ Stack: React 19 + TypeScript estricto + Vite 7. **Sin librerías de UI ni de gr�
 | Zero-Egress por defecto | Todo el análisis es local. El SDK de IA se carga con `import()` dinámico: en Zero-Egress ni se descarga. | DevTools → Network: ninguna petición a terceros. El E2E lo comprueba. |
 | Destinos acotados | CSP en el HTML: `connect-src 'self' https://api.anthropic.com http://localhost:11434 http://127.0.0.1:11434`, `script-src 'self'`. | Ver `<meta http-equiv="Content-Security-Policy">` en el código fuente de la página. |
 | Clave BYOK solo en memoria | Vive en estado de React. No se usa `localStorage`, `sessionStorage`, IndexedDB ni cookies. Al recargar, desaparece. Lo único que se guarda en el navegador es la preferencia de tema, y solo si la eliges. | El E2E introduce una clave y comprueba los tres almacenes; también verifica que `localStorage` solo contiene `nexo-color-scheme`. |
-| PII nunca sale | Antes de enviar un pliego a Anthropic u Ollama se aplica el mismo `redactPii` del Módulo 1. | El E2E intercepta la petición y verifica que `12345678Z` llega como `[DNI_1]`. |
-| Resiliencia en vivo | Errores tipados (`auth`, `network`, `model`, `rate_limit`, `refusal`, `bad_output`) → aviso claro + botón «Volver a Zero-Egress» sin perder datos. | E2E: clave inválida (401) y Ollama caído. |
+| PII habitual redactada antes de salir | Antes de enviar un pliego a Anthropic u Ollama se aplica el mismo `redactPii` del Módulo 1: DNI/NIE (con o sin guion), IBAN (mayúsculas o minúsculas), tarjetas, emails y teléfonos españoles. **No** cubre nombres propios, direcciones ni formatos exóticos. | El E2E intercepta la petición y verifica que `12345678Z` llega como `[DNI_1]`; tests unitarios de cada variante. |
+| Resiliencia en vivo | Errores tipados (`auth`, `network`, `model`, `rate_limit`, `refusal`, `bad_output`, `unknown` para 5xx y otros) → aviso claro + botón «Volver a Zero-Egress» sin perder datos. | E2E: clave inválida (401) y Ollama caído. |
 | Salida del modelo no confiable | `normalizeAiClauses` valida categorías, recorta campos y marca las cláusulas como «IA · revisar» y no cubiertas. | Tests unitarios. |
 
-**Riesgo residual (dicho claro):** en BYOK la clave está en la memoria de una página web; un XSS la expondría. Mitigaciones: CSP sin scripts de terceros, React escapa todo el contenido, cero `dangerouslySetInnerHTML`. Recomendación operativa: usar una clave de un workspace con **límite de gasto** y revocarla tras la demo.
+**Riesgos residuales (dichos claro):**
+
+1. En BYOK la clave está en la memoria de una página web; un XSS la expondría. Mitigaciones: CSP sin scripts de terceros, React escapa todo el contenido, cero `dangerouslySetInnerHTML`, y el campo de la clave no está dentro de un `<form>` (para que el gestor de contraseñas no ofrezca guardarla). Recomendación operativa: clave de un workspace con **límite de gasto**, revocada tras la demo.
+2. **Inyección indirecta:** un pliego pegado puede contener instrucciones dirigidas al modelo. Se pasa por `detectInjection` (la UI avisa si hay señales), se envía envuelto en `<pliego>` con la instrucción de tratarlo como datos no confiables, y las cláusulas que propone la IA se validan con `normalizeAiClauses` y se marcan «IA · revisar» y no cubiertas. Mitiga, no elimina.
+3. El detector de inyección normaliza Unicode (NFKC), elimina caracteres invisibles, de control bidi y etiquetas, y deshace homóglifos cirílicos y griegos, pero sigue siendo **heurístico**: una orden reformulada lo esquiva. El control que de verdad para la exfiltración es la autorización por sesión.
+4. La CSP va en una etiqueta `<meta>` (GitHub Pages no permite cabeceras): limita conexiones (`fetch`/XHR/WebSocket), no navegaciones ni el encuadre en otro sitio (`frame-ancestors` exige cabecera HTTP).
 
 Detalles BYOK: llamada directa del navegador a la API de Anthropic con el SDK oficial (`dangerouslyAllowBrowser`, deliberado y documentado), modelo por defecto `claude-opus-5-5`, salida estructurada con JSON Schema y *fallback* de servidor ante rechazos. Ollama: `OLLAMA_ORIGINS=<origen de la demo> ollama serve`; algunos navegadores piden permiso de acceso a red local.
 
@@ -116,8 +132,8 @@ Detalles BYOK: llamada directa del navegador a la API de Anthropic con el SDK of
 ```bash
 cd apps/nexo-ops
 npm ci
-npm run check        # typecheck + 74 tests unitarios + build
-npm run smoke        # E2E: 56 comprobaciones (escritorio, iPhone 13, oscuro, guía; necesita playwright)
+npm run check        # typecheck + 95 tests unitarios + build
+npm run smoke        # E2E: 71 comprobaciones (escritorio, iPhone 13, ES/EN, oscuro, guía; necesita playwright)
 npm run shots        # regenera las capturas de la guía
 ```
 
@@ -133,7 +149,10 @@ El E2E (`scripts/smoke.mjs`) recorre el guion completo y valida cada criterio de
 | Revisión final 1280×720 sin desbordamientos | `scrollWidth ≤ 1280` en los 3 módulos |
 | Móvil usable | línea de tiempo, veredicto fijo, objetivos ≥ 44 px, hoja inferior, sin desbordamiento a 390 y 320 px |
 | Accesibilidad | ningún botón o enlace sin nombre accesible (escritorio, móvil y guía) |
+| Bilingüe de verdad | navegador en inglés → demo en inglés; traza, veredictos, controles y One-Pager traducidos; ES/EN y tema persisten al recargar; atajos `L` y `T` |
 | La guía no miente | sus fragmentos de código salen del código fuente (`#region`) y hay tests que fallan si desaparecen |
+
+**Revisión independiente («goldfish»):** un revisor sin el contexto de la conversación contrastó este README y la guía con el código y encontró 12 problemas (afirmaciones exageradas sobre la redacción de PII, inyección indirecta no declarada, homóglifos que burlaban el detector, segmentados de 38 px en táctil, una etiqueta normativa errónea, animaciones que se repetían al cambiar de pestaña, etc.). Todos se corrigieron en código o en texto y los relevantes tienen test.
 
 CI (`.github/workflows/nexo-ops-ci.yml`): typecheck, tests, E2E, y comprueba que la demo publicada en `/nexo-ops` corresponde exactamente al código fuente.
 
