@@ -1,3 +1,4 @@
+import { CircleDot } from 'lucide-react';
 import { Card, Segmented, SliderField, Switch, tierTone } from '../components/ui';
 import { HITL_ASSUMPTIONS } from '../services/roi';
 import { baseCellScore, tierFromScore, USE_CASES } from '../services/riskIndex';
@@ -199,7 +200,7 @@ function RiskMatrix({ autonomy, sensitivity, onPick }: { autonomy: AutonomyLevel
                   aria-label={`${AUTONOMY.find((x) => x.value === a)!.label} con datos ${SENSITIVITY.find((x) => x.value === d)!.label}: riesgo base ${t}`}
                   onClick={() => onPick(a, d)}
                 >
-                  {here && <span aria-hidden="true">● </span>}
+                  {here && <CircleDot size={13} aria-hidden="true" />}
                   {t}
                 </button>
               );
@@ -213,7 +214,7 @@ function RiskMatrix({ autonomy, sensitivity, onPick }: { autonomy: AutonomyLevel
           ))}
         </div>
       </div>
-      <div className="matrix-x">Autonomía del agente →  · riesgo base sin controles; los interruptores ajustan el índice final</div>
+      <div className="matrix-x">Autonomía del agente → · riesgo base sin controles</div>
     </div>
   );
 }

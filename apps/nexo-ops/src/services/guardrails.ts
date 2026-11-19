@@ -40,6 +40,7 @@ export function isValidNie(nie: string): boolean {
 }
 
 /** ISO 13616: mueve 4 primeros al final, letras → números, mod 97 == 1. */
+// #region guia:iban
 export function isValidIban(raw: string): boolean {
   const iban = raw.replace(/\s+/g, '').toUpperCase();
   if (!/^[A-Z]{2}\d{2}[A-Z0-9]{11,30}$/.test(iban)) return false;
@@ -51,6 +52,7 @@ export function isValidIban(raw: string): boolean {
   }
   return remainder === 1;
 }
+// #endregion guia:iban
 
 export function isValidLuhn(raw: string): boolean {
   const digits = raw.replace(/\D/g, '');
@@ -191,6 +193,7 @@ export interface ScopeDecision {
   denied: string[];
 }
 
+// #region guia:scope
 /**
  * El agente nunca decide a qué cliente accede: la identidad sale del canal
  * autenticado, no del texto del mensaje ni de la salida del modelo.
@@ -201,6 +204,7 @@ export function enforceCustomerScope(sessionCustomerId: string, requestedIds: st
   for (const id of requestedIds) (id === sessionCustomerId ? allowed : denied).push(id);
   return { allowed, denied };
 }
+// #endregion guia:scope
 
 /* ───────────────── Política comercial determinista ───────────────── */
 
@@ -219,6 +223,7 @@ export type PolicyDecision =
   | { kind: 'auto_approve'; amountEur: number }
   | { kind: 'escalate_hitl'; amountEur: number; reason: string };
 
+// #region guia:policy
 export function evaluateCompensation(amountEur: number, policy: CompensationPolicy = DEFAULT_POLICY): PolicyDecision {
   if (amountEur <= policy.autoApproveLimitEur) return { kind: 'auto_approve', amountEur };
   return {
@@ -227,3 +232,4 @@ export function evaluateCompensation(amountEur: number, policy: CompensationPoli
     reason: `Importe ${amountEur.toFixed(2)} € > límite de aprobación automática (${policy.autoApproveLimitEur} €)`,
   };
 }
+// #endregion guia:policy

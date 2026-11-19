@@ -1,6 +1,7 @@
 # NEXO-OPS · Mesa interactiva de consultoría en IA agéntica, CX/CRM y licitaciones
 
-**▶ [Probar demo en vivo](https://heindall92.github.io/mi-departamento/nexo-ops/)** — un clic, sin instalar nada, sin cuenta, sin enviar datos.
+**▶ [Probar demo en vivo](https://heindall92.github.io/mi-departamento/nexo-ops/)** — un clic, sin instalar nada, sin cuenta, sin enviar datos. Escritorio y móvil, claro y oscuro.
+**📖 [Cómo se hace](https://heindall92.github.io/mi-departamento/nexo-ops/como-se-hace.html)** — la guía del proyecto, con demos en vivo y el código real.
 Simulador de agentes con «Modo Caos» y guardrails · Motor Go/No-Go de pliegos · ROI operativo + riesgo IA (ISO 42001 / EU AI Act).
 
 > Autor: Yoandy Ramírez Delgado · v1.0 · Escenarios y datos 100 % ficticios · Indicadores orientativos, no asesoramiento jurídico.
@@ -30,6 +31,22 @@ Guion del vídeo de 60–90 s y preguntas difíciles frecuentes: [`docs/GUION-DE
 
 Atajos: `1` `2` `3` cambian de módulo · `G` alterna guardrails.
 
+## Diseño: escritorio y móvil
+
+No es la misma interfaz encogida: es otra composición sobre el mismo estado.
+
+| Pieza | Escritorio (compartir pantalla a 1280×720) | Móvil (una mano) |
+|---|---|---|
+| Navegación | Pestañas arriba + atajos de teclado | Barra inferior translúcida con área segura; menú «Más» |
+| Flujo CX/CRM | Seis carriles por actor + inspector + traza lateral | Línea de tiempo vertical; el detalle se despliega en su sitio |
+| Reproducción | Barra de herramientas | Dock flotante sobre la navegación, botones ≥ 48 px |
+| Veredicto Go/No-Go | Tarjeta en la columna lateral | Píldora fija arriba: se ve el efecto de cada cambio sin subir |
+| Ajustes | Diálogo centrado | Hoja inferior (curva *drawer* de iOS) con cierre tocando fuera |
+
+Base visual: IBM Plex autoalojada, iconos Lucide (nada de emojis como iconos), tokens `light-dark()` con modo oscuro que sigue al sistema y se puede fijar en Ajustes sin parpadeo (script externo, compatible con la CSP). Movimiento solo para estados, con curvas *ease-out* fuertes, presión de botones a 0,97, sin animaciones en acciones de teclado y respetando «reducir movimiento», «reducir transparencia» y «más contraste».
+
+Guías aplicadas (detalle en la [página «Cómo se hace»](https://heindall92.github.io/mi-departamento/nexo-ops/como-se-hace.html#creditos)): [Emil Kowalski](https://github.com/emilkowalski/skills) (motion y Apple design), [Impeccable](https://github.com/pbakaus/impeccable) (craft floor), [Modern Web Guidance](https://github.com/GoogleChrome/modern-web-guidance) (modo oscuro, diálogo, formato del dispositivo), [dashboard-design](https://github.com/abdiraimov-otabek/dashboard-design-skill) (números y estados) y [Elephant-Goldfish](https://github.com/google/elephant-goldfish-model) (revisión con ojos nuevos).
+
 ---
 
 ## Arquitectura
@@ -51,7 +68,10 @@ apps/nexo-ops/                 ← código fuente (este directorio)
 │   │   └── reportExporter.ts    One-Pager Markdown (+ PDF vía impresión)
 │   ├── modules/               ← Módulo 1, 2 y 3 (UI)
 │   └── components/            ← TopBar, SettingsModal, OnePager, primitivas UI
-└── scripts/smoke.mjs          ← E2E del guion completo en Chromium
+├── como-se-hace.html          ← guía (segunda entrada de Vite)
+├── src/guide/                 ← guía «Cómo se hace»: demos en vivo + código citado desde src/services
+├── public/img/                ← capturas reales (npm run shots)
+└── scripts/smoke.mjs          ← E2E: escritorio, iPhone 13, modo oscuro y guía
 ../../nexo-ops/                ← build estático publicado en GitHub Pages
 ```
 
@@ -71,7 +91,7 @@ Stack: React 19 + TypeScript estricto + Vite 7. **Sin librerías de UI ni de gr�
 |---|---|---|
 | Zero-Egress por defecto | Todo el análisis es local. El SDK de IA se carga con `import()` dinámico: en Zero-Egress ni se descarga. | DevTools → Network: ninguna petición a terceros. El E2E lo comprueba. |
 | Destinos acotados | CSP en el HTML: `connect-src 'self' https://api.anthropic.com http://localhost:11434 http://127.0.0.1:11434`, `script-src 'self'`. | Ver `<meta http-equiv="Content-Security-Policy">` en el código fuente de la página. |
-| Clave BYOK solo en memoria | Vive en estado de React. No se usa `localStorage`, `sessionStorage`, IndexedDB ni cookies. Al recargar, desaparece. | El E2E introduce una clave y comprueba los tres almacenes. |
+| Clave BYOK solo en memoria | Vive en estado de React. No se usa `localStorage`, `sessionStorage`, IndexedDB ni cookies. Al recargar, desaparece. Lo único que se guarda en el navegador es la preferencia de tema, y solo si la eliges. | El E2E introduce una clave y comprueba los tres almacenes; también verifica que `localStorage` solo contiene `nexo-color-scheme`. |
 | PII nunca sale | Antes de enviar un pliego a Anthropic u Ollama se aplica el mismo `redactPii` del Módulo 1. | El E2E intercepta la petición y verifica que `12345678Z` llega como `[DNI_1]`. |
 | Resiliencia en vivo | Errores tipados (`auth`, `network`, `model`, `rate_limit`, `refusal`, `bad_output`) → aviso claro + botón «Volver a Zero-Egress» sin perder datos. | E2E: clave inválida (401) y Ollama caído. |
 | Salida del modelo no confiable | `normalizeAiClauses` valida categorías, recorta campos y marca las cláusulas como «IA · revisar» y no cubiertas. | Tests unitarios. |
@@ -96,8 +116,9 @@ Detalles BYOK: llamada directa del navegador a la API de Anthropic con el SDK of
 ```bash
 cd apps/nexo-ops
 npm ci
-npm run check        # typecheck + 68 tests unitarios + build
-npm run smoke        # E2E: 31 comprobaciones en Chromium a 1280×720 (necesita playwright)
+npm run check        # typecheck + 74 tests unitarios + build
+npm run smoke        # E2E: 56 comprobaciones (escritorio, iPhone 13, oscuro, guía; necesita playwright)
+npm run shots        # regenera las capturas de la guía
 ```
 
 El E2E (`scripts/smoke.mjs`) recorre el guion completo y valida cada criterio de aceptación:
@@ -110,6 +131,9 @@ El E2E (`scripts/smoke.mjs`) recorre el guion completo y valida cada criterio de
 | F3: 100 % sin API; con API/Ollama enriquece sin romper | BYOK 401 y Ollama caído → aviso + retorno, datos intactos |
 | F3: el informe incluye flujo, ROI y checklist | Markdown descargado + PDF = **1 página A4** |
 | Revisión final 1280×720 sin desbordamientos | `scrollWidth ≤ 1280` en los 3 módulos |
+| Móvil usable | línea de tiempo, veredicto fijo, objetivos ≥ 44 px, hoja inferior, sin desbordamiento a 390 y 320 px |
+| Accesibilidad | ningún botón o enlace sin nombre accesible (escritorio, móvil y guía) |
+| La guía no miente | sus fragmentos de código salen del código fuente (`#region`) y hay tests que fallan si desaparecen |
 
 CI (`.github/workflows/nexo-ops-ci.yml`): typecheck, tests, E2E, y comprueba que la demo publicada en `/nexo-ops` corresponde exactamente al código fuente.
 

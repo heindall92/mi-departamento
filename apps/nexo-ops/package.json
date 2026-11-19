@@ -12,10 +12,14 @@
     "build:pages": "tsc --noEmit && vite build --outDir ../../nexo-ops --emptyOutDir",
     "preview": "vite preview",
     "smoke": "node scripts/smoke.mjs",
-    "check": "npm run typecheck && npm test && npm run build"
+    "check": "npm run typecheck && npm test && npm run build",
+    "shots": "node scripts/screenshots.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "1.10.0",
+    "@fontsource/ibm-plex-mono": "5.3.0",
+    "@fontsource/ibm-plex-sans": "5.3.0",
+    "lucide-react": "1.66.0",
     "react": "19.3.1",
     "react-dom": "19.3.1"
   },

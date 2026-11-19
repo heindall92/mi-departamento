@@ -1,3 +1,4 @@
+import { Ban, Check, ClipboardPaste, SlidersHorizontal, Sparkles, X } from 'lucide-react';
 import { useRef } from 'react';
 import { Card, Meter, Segmented, SliderField } from '../components/ui';
 import { CAPABILITIES, TENDER_SCENARIOS } from '../data/tenderScenarios';
@@ -6,6 +7,7 @@ import { analyzeTenderWithAi, LlmError } from '../services/llmAdapter';
 import { isMet, RISK_WEIGHT, type Capabilities, type ClauseOverrides, type EffortPhase } from '../services/tenderScoring';
 import type { AiSettings, CapabilityId, ClauseCategory, TenderClause, TenderEvaluation, TenderScenario, TenderWeights, Verdict } from '../types/domain';
 import { fmtEur, fmtNum } from '../utils/format';
+import { MOBILE_QUERY, useMediaQuery } from '../utils/theme';
 
 export interface TenderState {
   scenarioId: string; // 'cx_omnicanal' | 'ia_regulada' | 'pasted'
@@ -56,6 +58,7 @@ export function TenderAnalyzer({
   onOpenSettings: () => void;
   onFallbackToLocal: () => void;
 }) {
+  const mobile = useMediaQuery(MOBILE_QUERY);
   const set = (patch: Partial<TenderState>) => setState((s) => ({ ...s, ...patch }));
   const abortRef = useRef<AbortController | null>(null);
 
@@ -103,8 +106,8 @@ export function TenderAnalyzer({
           value={state.scenarioId}
           onChange={(v) => set({ scenarioId: v })}
           options={[
-            ...TENDER_SCENARIOS.map((s) => ({ value: s.id, label: s.title.split(' · ')[0] + ' · ' + shortTender(s.id), hint: s.title })),
-            { value: 'pasted', label: '✎ Pegar pliego real' },
+            ...TENDER_SCENARIOS.map((s) => ({ value: s.id, label: mobile ? `Pliego ${s.title.split(' · ')[0]}` : s.title.split(' · ')[0] + ' · ' + shortTender(s.id), hint: s.title })),
+            { value: 'pasted', label: <><ClipboardPaste size={15} aria-hidden="true" /> {mobile ? 'Pegar' : 'Pegar pliego real'}</> },
           ]}
         />
         {scenario && (
@@ -114,6 +117,13 @@ export function TenderAnalyzer({
         )}
       </div>
 
+      {mobile && evaluation && (
+        <div className={`verdict-sticky tone-${evaluation.verdict === 'Go' ? 'good' : evaluation.verdict === 'Revisar' ? 'warn' : 'bad'}`} aria-hidden="true">
+          <strong key={evaluation.verdict} className="swap">{VERDICT_TEXT[evaluation.verdict]}</strong>
+          <span className="num-tab">{evaluation.total}/100</span>
+          {evaluation.vetoes.length > 0 && <span className="small">· veto</span>}
+        </div>
+      )}
       <div className="tender-grid">
         <div className="tender-side">
           {evaluation && scenario ? (
@@ -132,7 +142,7 @@ export function TenderAnalyzer({
             </Card>
           )}
 
-          <Card title="Capacidades internas" actions={<span className="muted small">marca lo que tu equipo acredita hoy</span>}>
+          <Card className="caps-card" title="Capacidades internas" actions={<span className="muted small">marca lo que tu equipo acredita hoy</span>}>
             <ul className="caps">
               {CAPABILITIES.map((c) => (
                 <li key={c.id}>
@@ -149,7 +159,7 @@ export function TenderAnalyzer({
             </ul>
           </Card>
 
-          <Card title="Pesos y equipo">
+          <Card className="weights-card" title={<><SlidersHorizontal size={16} aria-hidden="true" /> Pesos y equipo</>}>
             {(Object.keys(WEIGHT_LABELS) as (keyof TenderWeights)[]).map((k) => (
               <SliderField
                 key={k}
@@ -224,13 +234,13 @@ export function TenderAnalyzer({
 
           {scenario && evaluation && (
             <>
-              <Card title="Extracción estructurada en 5 bloques" actions={<span className="muted small">pulsa ✓/✕ para cambiar lo que cubre el equipo</span>}>
+              <Card title="Extracción estructurada en 5 bloques" actions={<span className="muted small">toca el estado de cada cláusula para cambiarlo</span>}>
                 {BLOCKS.map((b) => {
                   const items = scenario.clauses.filter((c) => c.category === b.cat);
                   return (
                     <div key={b.cat} className="block">
                       <h3>
-                        {b.title} <span className="muted small">· {items.length} · {b.hint}</span>
+                        {b.title} <span className="muted small num-tab">· {items.length}</span> <span className="muted small block-hint">· {b.hint}</span>
                       </h3>
                       {items.length === 0 ? (
                         <p className="muted small">Sin cláusulas detectadas.</p>
@@ -296,7 +306,7 @@ function ClauseRow({ c, met, onToggle, veto }: { c: TenderClause; met: boolean; 
   return (
     <li className={`clause ${met ? 'is-met' : 'is-gap'} ${veto ? 'is-veto' : ''}`}>
       <button type="button" className="clause-toggle" onClick={onToggle} aria-pressed={met} aria-label={`${met ? 'Cubierto' : 'No cubierto'}: ${c.summary}. Pulsar para cambiar.`}>
-        <span aria-hidden="true">{met ? '✓' : '✕'}</span>
+        {met ? <Check size={16} strokeWidth={2.5} aria-hidden="true" /> : <X size={16} strokeWidth={2.5} aria-hidden="true" />}
         <span className="sr-label">{met ? 'Cubierto' : 'No cubierto'}</span>
       </button>
       <div className="clause-body">
@@ -305,8 +315,8 @@ function ClauseRow({ c, met, onToggle, veto }: { c: TenderClause; met: boolean; 
           {c.framework && <span className="chip">{c.framework}</span>}
           <span className={`chip risk risk-${c.riskLevel}`} title={`Peso ${RISK_WEIGHT[c.riskLevel]}`}>Riesgo {c.riskLevel}</span>
           {c.penaltyPct ? <span className="chip">Penal. máx. {fmtNum(c.penaltyPct)} %</span> : null}
-          {c.source === 'ia' && <span className="chip chip-ai">IA · revisar</span>}
-          {veto && <span className="badge tone-bad">⛔ Veto</span>}
+          {c.source === 'ia' && <span className="chip chip-ai"><Sparkles size={11} aria-hidden="true" /> IA · revisar</span>}
+          {veto && <span className="badge tone-bad"><Ban size={13} aria-hidden="true" /> Veto</span>}
         </div>
         {c.business && <p className="small clause-business">{c.business}</p>}
         {c.evidence && (
@@ -333,7 +343,7 @@ function VerdictCard({ evaluation }: { evaluation: TenderEvaluation }) {
           <span className={`light l-nogo ${v === 'No-Go' ? 'on' : ''}`} />
         </div>
         <div>
-          <div className="verdict-label" aria-live="polite">{VERDICT_TEXT[v]}</div>
+          <div className="verdict-label swap" key={v} aria-live="polite">{VERDICT_TEXT[v]}</div>
           <div className="verdict-score">{evaluation.total}<span>/100</span></div>
         </div>
       </div>
@@ -341,7 +351,7 @@ function VerdictCard({ evaluation }: { evaluation: TenderEvaluation }) {
       {evaluation.vetoes.length > 0 && (
         <ul className="vetoes">
           {evaluation.vetoes.map((c) => (
-            <li key={c.id}>⛔ {c.summary}</li>
+            <li key={c.id}><Ban size={14} aria-hidden="true" /> {c.summary}</li>
           ))}
         </ul>
       )}

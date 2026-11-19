@@ -1,20 +1,27 @@
+import type { LucideIcon } from 'lucide-react';
+import { CircleCheck, ShieldCheck, ShieldX, TriangleAlert, UserRoundCheck } from 'lucide-react';
 import type { ReactNode } from 'react';
 import type { ComplianceState, RiskTier, TraceStatus, Verdict } from '../types/domain';
 
 /** Estados siempre con icono + texto: nunca solo color (regla 07 de accesibilidad). */
-const STATUS: Record<TraceStatus, { label: string; icon: string; tone: string }> = {
-  ok: { label: 'OK', icon: '✓', tone: 'good' },
-  warning: { label: 'Aviso', icon: '!', tone: 'warn' },
-  blocked: { label: 'Bloqueado', icon: '⛔', tone: 'good' },
-  escalated: { label: 'Escalado a humano', icon: '👤', tone: 'info' },
-  leak: { label: 'Fuga / daño', icon: '✕', tone: 'bad' },
+const STATUS: Record<TraceStatus, { label: string; short: string; Icon: LucideIcon; tone: string }> = {
+  ok: { label: 'OK', short: 'OK', Icon: CircleCheck, tone: 'good' },
+  warning: { label: 'Aviso', short: 'Aviso', Icon: TriangleAlert, tone: 'warn' },
+  blocked: { label: 'Bloqueado', short: 'Bloqueado', Icon: ShieldCheck, tone: 'good' },
+  escalated: { label: 'Escalado a humano', short: 'HITL', Icon: UserRoundCheck, tone: 'info' },
+  leak: { label: 'Fuga / daño', short: 'Fuga', Icon: ShieldX, tone: 'bad' },
 };
+
+export function statusTone(s: TraceStatus) {
+  return STATUS[s].tone;
+}
 
 export function StatusBadge({ status, compact = false }: { status: TraceStatus; compact?: boolean }) {
   const s = STATUS[status];
   return (
     <span className={`badge tone-${s.tone}`} title={s.label}>
-      <span aria-hidden="true">{s.icon}</span> {compact && status === 'escalated' ? 'HITL' : s.label}
+      <s.Icon size={13} strokeWidth={2.25} aria-hidden="true" />
+      {compact ? s.short : s.label}
     </span>
   );
 }
@@ -40,15 +47,17 @@ export function Segmented<T extends string>({
   options,
   onChange,
   size = 'md',
+  className = '',
 }: {
   label: string;
   value: T;
   options: { value: T; label: ReactNode; hint?: string }[];
   onChange: (v: T) => void;
   size?: 'sm' | 'md';
+  className?: string;
 }) {
   return (
-    <div className={`segmented seg-${size}`} role="radiogroup" aria-label={label}>
+    <div className={`segmented seg-${size} ${className}`} role="radiogroup" aria-label={label}>
       {options.map((o) => (
         <button
           key={o.value}
@@ -72,28 +81,28 @@ export function Switch({
   label,
   onLabel = 'ON',
   offLabel = 'OFF',
-  tone = 'good',
+  className = '',
 }: {
   checked: boolean;
   onChange: (v: boolean) => void;
   label: string;
   onLabel?: string;
   offLabel?: string;
-  tone?: 'good' | 'neutral';
+  className?: string;
 }) {
   return (
     <button
       type="button"
       role="switch"
       aria-checked={checked}
-      className={`switch ${checked ? 'is-on' : 'is-off'} switch-${tone}`}
+      className={`switch ${checked ? 'is-on' : 'is-off'} ${className}`}
       onClick={() => onChange(!checked)}
     >
       <span className="switch-track" aria-hidden="true">
         <span className="switch-thumb" />
       </span>
       <span className="switch-label">{label}</span>
-      <span className="switch-state">{checked ? onLabel : offLabel}</span>
+      <span className="switch-state" aria-hidden="true">{checked ? onLabel : offLabel}</span>
     </button>
   );
 }
@@ -126,6 +135,7 @@ export function SliderField({
         <span className="slider-input">
           <input
             type="number"
+            inputMode="decimal"
             aria-label={`${label} (valor exacto)`}
             value={value}
             min={min}
@@ -153,9 +163,9 @@ export function SliderField({
   );
 }
 
-export function Card({ title, actions, children, className = '' }: { title?: ReactNode; actions?: ReactNode; children: ReactNode; className?: string }) {
+export function Card({ title, actions, children, className = '', id }: { title?: ReactNode; actions?: ReactNode; children: ReactNode; className?: string; id?: string }) {
   return (
-    <section className={`card ${className}`}>
+    <section className={`card ${className}`} id={id}>
       {(title || actions) && (
         <header className="card-head">
           {title && <h2>{title}</h2>}
@@ -167,16 +177,17 @@ export function Card({ title, actions, children, className = '' }: { title?: Rea
   );
 }
 
+/** Barra 0–100. Anima con transform (compositor), no con width. */
 export function Meter({ value, label, tone }: { value: number; label: string; tone?: string }) {
   const t = tone ?? (value >= 70 ? 'good' : value >= 50 ? 'warn' : 'bad');
   return (
     <div className="meter">
       <div className="meter-head">
         <span>{label}</span>
-        <strong>{value}</strong>
+        <strong className="num-tab">{value}</strong>
       </div>
       <div className="meter-track" role="meter" aria-label={label} aria-valuemin={0} aria-valuemax={100} aria-valuenow={value}>
-        <div className={`meter-fill tone-${t}`} style={{ width: `${Math.max(2, value)}%` }} />
+        <div className={`meter-fill fill-${t}`} style={{ transform: `scaleX(${Math.max(0.02, value / 100)})` }} />
       </div>
     </div>
   );

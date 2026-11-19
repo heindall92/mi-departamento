@@ -350,7 +350,7 @@ export function runFlow(incidentId: IncidentId | null, guardrails: boolean): Flo
   } else {
     push('hitl', {
       decision: guardrails ? 'No necesaria: el caso está dentro de umbral.' : 'No existe validación humana en esta implementación.',
-      status: 'ok',
+      status: guardrails || !ctx.incident ? 'ok' : 'warning',
       compliance: guardrails || !ctx.incident ? 'Cumple' : 'Incumple',
       technical: guardrails ? step('hitl').normalOutput : effect('hitl')?.vulnerable ?? step('hitl').vulnerableBehavior,
       business: guardrails ? 'El humano solo interviene donde aporta valor.' : step('hitl').businessImpact,

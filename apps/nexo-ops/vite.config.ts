@@ -39,11 +39,14 @@ export default defineConfig({
   plugins: [react(), cspPlugin()],
   build: {
     target: 'es2022',
+    rollupOptions: {
+      input: { main: 'index.html', guia: 'como-se-hace.html' },
+    },
     sourcemap: false,
     chunkSizeWarningLimit: 600,
   },
   test: {
     environment: 'node',
-    include: ['src/**/*.test.ts'],
+    include: ["src/**/*.test.ts"],
   },
 });

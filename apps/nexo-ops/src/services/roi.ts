@@ -22,6 +22,7 @@ export const DEFAULT_ROI: RoiInputs = {
   monthlyRunCostEur: 4_200,
 };
 
+// #region guia:roi
 export function computeRoi(i: RoiInputs, g: Pick<GovernanceControls, 'autonomyLevel' | 'hitlEnabled'>): RoiResult {
   const rate = Math.min(90, Math.max(0, i.automationRatePct)) / 100;
   const manualHours = (i.monthlyVolume * i.manualMinutesPerItem) / 60;
@@ -36,6 +37,7 @@ export function computeRoi(i: RoiInputs, g: Pick<GovernanceControls, 'autonomyLe
   const firstYearCost = i.setupCostEur + i.monthlyRunCostEur * 12;
   const roiPct = firstYearCost > 0 ? (firstYearNetEur / firstYearCost) * 100 : 0;
   const paybackMonths = netMonthlyEur > 0 ? i.setupCostEur / netMonthlyEur : null;
+// #endregion guia:roi
   return {
     grossHoursAutomated,
     hitlReviewHours,

@@ -144,12 +144,14 @@ export function evaluateTender(
       contractual * weights.contractual) /
     wSum;
 
+// #region guia:veto
   const vetoes = s.clauses.filter((c) => c.category === 'excluyente' && !met(c));
   let verdict: Verdict;
   if (vetoes.length) verdict = 'No-Go';
   else if (total >= GO_THRESHOLD) verdict = 'Go';
   else if (total >= REVIEW_THRESHOLD) verdict = 'Revisar';
   else verdict = 'No-Go';
+// #endregion guia:veto
 
   return { verdict, total: Math.round(total), dimensions: roundAll(dimensions), vetoes, drivers, explanation: explain(verdict, total, vetoes, dimensions) };
 }
